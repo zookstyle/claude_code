@@ -1,0 +1,21 @@
+{
+  "name": "mcp-servers-config",
+  "version": "1.0.0",
+  "description": "MCP server configurations for Claude Desktop",
+  "main": "mcp_config.json",
+  "scripts": {
+    "test": "echo \"No tests available\" && exit 0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "n8n",
+    "playwright",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
