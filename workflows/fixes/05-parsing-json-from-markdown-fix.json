@@ -1,0 +1,51 @@
+{
+  "fix_description": "Step 1 & Step 2 파싱 노드 - 마크다운으로 감싸진 JSON 추출 개선",
+  "issue": "Perplexity API가 JSON을 마크다운 코드 블록으로 감싸고 앞뒤에 설명 텍스트를 추가하여 반환할 때 파싱 실패. 기존 코드는 ```json과 ``` 마커만 제거하여 설명 텍스트가 남아 JSON.parse() 실패함.",
+  "real_error_example": {
+    "perplexity_response": "주제 **\"프리워시의 모든 것\"**에 대한 대화 소재를 발굴해 보겠습니다. 아래는...\n\n```json\n{...actual json...}\n```\n\n이러한 질문, 논쟁, 팁들은...",
+    "current_parsing_result": {
+      "error": "JSON 파싱 실패",
+      "reason": "앞뒤 설명 텍스트가 남아있어 유효하지 않은 JSON"
+    }
+  },
+  "severity": "치명적 - 워크플로우 중단",
+  "fix": "정규표현식으로 마크다운 코드 블록 내부의 JSON만 추출",
+  "old_code": "const cleaned = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nresult = JSON.parse(cleaned);",
+  "new_code": "// Try to extract JSON from markdown code block first\nconst jsonMatch = content.match(/```json\\s*([\\s\\S]*?)\\s*```/);\nif (jsonMatch) {\n  result = JSON.parse(jsonMatch[1].trim());\n} else {\n  // Fallback to old method for responses without markdown\n  const cleaned = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  result = JSON.parse(cleaned);\n}",
+  "affected_nodes": [
+    "1단계 결과 파싱1",
+    "2단계 결과 파싱1"
+  ],
+  "fix_explanation": {
+    "step1": "정규표현식 /```json\\s*([\\s\\S]*?)\\s*```/ 사용",
+    "step2": "마크다운 코드 블록 안의 내용만 캡처 그룹으로 추출",
+    "step3": "추출된 JSON 문자열만 JSON.parse()로 파싱",
+    "step4": "마크다운 블록이 없는 경우 기존 방식으로 fallback (하위 호환성)"
+  },
+  "regex_breakdown": {
+    "pattern": "```json\\s*([\\s\\S]*?)\\s*```",
+    "explanation": {
+      "```json": "마크다운 JSON 코드 블록 시작 마커",
+      "\\s*": "0개 이상의 공백 문자 (줄바꿈 포함)",
+      "([\\s\\S]*?)": "캡처 그룹 - 모든 문자(공백 포함) non-greedy 매칭",
+      "\\s*": "0개 이상의 공백 문자",
+      "```": "마크다운 코드 블록 종료 마커"
+    },
+    "capture_group": "jsonMatch[1]에 순수 JSON 문자열만 저장됨"
+  },
+  "benefits": [
+    "Perplexity가 설명 텍스트를 추가해도 정상 파싱",
+    "마크다운 없는 응답도 fallback으로 처리 (하위 호환성)",
+    "파싱 실패 감소로 워크플로우 안정성 향상",
+    "3단계로 빈 데이터 전달되는 문제 해결"
+  ],
+  "cascade_effect": {
+    "before": "Step 2 파싱 실패 → Step 3에 빈 데이터 전달 → Claude가 '입력 데이터가 비어있다' 에러 반환",
+    "after": "Step 2 파싱 성공 → Step 3에 올바른 데이터 전달 → Claude가 정상적으로 대본 구조 생성"
+  },
+  "testing_notes": [
+    "Perplexity가 다양한 응답 형식을 사용할 수 있으므로 실제 API 응답으로 테스트 필요",
+    "마크다운 블록 없이 순수 JSON만 반환하는 경우도 테스트",
+    "설명 텍스트가 앞뒤로 포함된 경우도 테스트"
+  ]
+}

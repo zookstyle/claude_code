@@ -103,6 +103,40 @@ if (step5ChatGPTNode) {
   console.log('✓ Fixed: 5단계 - ChatGPT (최종 판단)1 - Added credentials');
 }
 
+// 수정 5: Step 1 & Step 2 파싱 노드 - 마크다운으로 감싸진 JSON 추출 개선
+const improvedParsingCode = `
+// Try to extract JSON from markdown code block first
+const jsonMatch = content.match(/\`\`\`json\\s*([\\s\\S]*?)\\s*\`\`\`/);
+if (jsonMatch) {
+  result = JSON.parse(jsonMatch[1].trim());
+} else {
+  // Fallback to old method for responses without markdown
+  const cleaned = content.replace(/\`\`\`json\\n?/g, '').replace(/\`\`\`\\n?/g, '').trim();
+  result = JSON.parse(cleaned);
+}`;
+
+// Step 1 파싱 개선
+const step1ParseNode = workflow.nodes.find(n => n.name === '1단계 결과 파싱1');
+if (step1ParseNode) {
+  const oldCode = step1ParseNode.parameters.jsCode;
+  step1ParseNode.parameters.jsCode = oldCode.replace(
+    /const cleaned = content\.replace\(\/```json\\n\?\/g, ''\)\.replace\(\/```\\n\?\/g, ''\)\.trim\(\);\s*result = JSON\.parse\(cleaned\);/,
+    improvedParsingCode
+  );
+  console.log('✓ Fixed: 1단계 결과 파싱1 - Improved JSON extraction from markdown');
+}
+
+// Step 2 파싱 개선
+const step2ParseNode = workflow.nodes.find(n => n.name === '2단계 결과 파싱1');
+if (step2ParseNode) {
+  const oldCode = step2ParseNode.parameters.jsCode;
+  step2ParseNode.parameters.jsCode = oldCode.replace(
+    /const cleaned = content\.replace\(\/```json\\n\?\/g, ''\)\.replace\(\/```\\n\?\/g, ''\)\.trim\(\);\s*result = JSON\.parse\(cleaned\);/,
+    improvedParsingCode
+  );
+  console.log('✓ Fixed: 2단계 결과 파싱1 - Improved JSON extraction from markdown');
+}
+
 // 수정된 워크플로우 저장
 const fixedPath = '/home/user/claude_code/workflows/podcast-validation-fixed.json';
 fs.writeFileSync(fixedPath, JSON.stringify(workflow, null, 2), 'utf8');

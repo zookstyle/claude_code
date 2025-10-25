@@ -8,7 +8,7 @@
 
 ---
 
-## 🔍 발견된 오류 (4가지)
+## 🔍 발견된 오류 (5가지)
 
 ### 🔴 1. 노드 참조 불일치 (치명적)
 **영향받는 노드**: 텔레그램 에러 알림 노드 4개
@@ -115,6 +115,66 @@ const claudeRequestBody = {
 
 ---
 
+### 🔴 5. JSON 파싱 로직 개선 필요 (치명적) ⭐ NEW
+**영향받는 노드**:
+- 1단계 결과 파싱1
+- 2단계 결과 파싱1
+
+**문제**:
+Perplexity API가 JSON을 마크다운 코드 블록으로 감싸고 앞뒤에 설명 텍스트를 추가하여 반환:
+```
+주제 **"프리워시의 모든 것"**에 대한 대화 소재를 발굴해 보겠습니다...
+
+```json
+{...actual json...}
+```
+
+이러한 질문, 논쟁, 팁들은...
+```
+
+기존 파싱 코드는 마크다운 마커만 제거하여 앞뒤 텍스트가 남아 JSON.parse() 실패:
+```javascript
+// 기존 코드 (문제)
+const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+result = JSON.parse(cleaned);
+// → 앞뒤 설명 텍스트가 남아있어 파싱 실패
+```
+
+**원인**: 정규표현식으로 마커만 제거하고 JSON 블록을 추출하지 않음
+
+**영향**:
+- Step 2 파싱 실패 → `step2_result: { error: 'JSON 파싱 실패' }`
+- Step 3에 빈 데이터 전달 → Claude가 "입력 데이터가 비어있다" 에러 반환
+- 워크플로우 완전 실패
+
+**수정**:
+정규표현식으로 마크다운 코드 블록 **내부**의 JSON만 추출:
+```javascript
+// 개선된 코드
+const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+if (jsonMatch) {
+  result = JSON.parse(jsonMatch[1].trim());
+} else {
+  // Fallback to old method for responses without markdown
+  const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  result = JSON.parse(cleaned);
+}
+```
+
+**정규표현식 설명**:
+- `/```json\s*([\s\S]*?)\s*```/`
+- `[\s\S]*?`: 모든 문자(공백 포함) non-greedy 매칭
+- `()`: 캡처 그룹 - 순수 JSON만 추출
+- Fallback으로 하위 호환성 유지
+
+**cascade 효과**:
+- ✅ Step 2 파싱 성공 → Step 3에 올바른 데이터 전달
+- ✅ Claude가 정상적으로 대본 구조 생성
+
+**파일**: `05-parsing-json-from-markdown-fix.json`
+
+---
+
 ## 📁 파일 구조
 
 ```
@@ -123,7 +183,8 @@ workflows/fixes/
 ├── 01-telegram-error-nodes-fix.json        # 텔레그램 에러 노드 수정
 ├── 02-step3-request-preparation-fix.json   # 3단계 요청 준비 수정
 ├── 03-step2-notion-save-url-fix.json       # 2단계 노션 저장 URL 수정
-└── 04-step5-chatgpt-credentials-fix.json   # 5단계 인증 추가
+├── 04-step5-chatgpt-credentials-fix.json   # 5단계 인증 추가
+└── 05-parsing-json-from-markdown-fix.json  # Step 1 & 2 파싱 개선 ⭐ NEW
 ```
 
 ---
