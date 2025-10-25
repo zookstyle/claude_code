@@ -30,6 +30,22 @@ Playwright 브라우저 자동화 도구를 사용할 수 있는 MCP 서버입�
 - UI 테스팅
 - 스크린샷 캡처
 
+### 3. Context7 MCP
+
+최신 공식 문서와 코드 예제를 동적으로 주입하는 MCP 서버입니다. (Upstash 제공)
+
+**기능:**
+- 최신 버전별 공식 문서 자동 참조
+- 실시간 코드 예제 제공
+- 다양한 프레임워크/라이브러리 지원 (React, Next.js, Vue, Python 등)
+- 프롬프트에 "use context7" 추가만으로 사용
+
+**사용 예시:**
+```
+"Next.js 14로 프로젝트 만들어줘. use context7"
+"React hooks TypeScript 예제 보여줘. use context7"
+```
+
 ## 설치 및 사용 방법
 
 ### 1. Claude Desktop 설정
@@ -63,6 +79,9 @@ Playwright 브라우저 자동화 도구를 사용할 수 있는 MCP 서버입�
       ...
     },
     "playwright": {
+      ...
+    },
+    "context7": {
       ...
     }
   }
@@ -100,6 +119,7 @@ n8n-mcp를 사용하려면 다음 환경 변수를 설정해야 합니다:
    ```bash
    npx n8n-mcp
    npx @playwright/mcp@latest
+   npx -y @upstash/context7-mcp@latest
    ```
 3. Claude Desktop 로그 확인
 
@@ -114,6 +134,7 @@ n8n-mcp를 사용하려면 다음 환경 변수를 설정해야 합니다:
 - [MCP 공식 문서](https://modelcontextprotocol.io/)
 - [n8n 공식 사이트](https://n8n.io/)
 - [Playwright 공식 문서](https://playwright.dev/)
+- [Context7 GitHub](https://github.com/upstash/context7)
 - [Claude Desktop MCP 가이드](https://docs.anthropic.com/claude/docs/model-context-protocol)
 
 ## 라이센스
