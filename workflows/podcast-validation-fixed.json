@@ -16,6 +16,7 @@
       ],
       "id": "69d0aef5-6e0a-4723-8f02-289755a8df07",
       "webhookId": "d3b96a89-47b7-43a5-a9eb-fa833ea15998",
+      "alwaysOutputData": false,
       "credentials": {
         "telegramApi": {
           "id": "lSg8TOZp3Ley9Rm4",
@@ -649,7 +650,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=https://api.notion.com/v1/pages/{{ $json.results[0].parent.page_id }}",
+        "url": "=https://api.notion.com/v1/blocks/{{ $json.results[0].parent.page_id }}/children",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendHeaders": true,
@@ -663,15 +664,15 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"properties\": {\n    \"상태\": {\n      \"status\": {\n        \"name\": $json.step5_result.status === '통과' ? '검증완료' : '보완필요'\n      }\n    },\n    \"점수\": {\n      \"number\": $json.step5_result.score || 0\n    }\n  }\n} }}",
+        "jsonBody": "={{ { \"children\": $input.item.json.notion_blocks_step5 } }}",
         "options": {}
       },
       "name": "HTTP - 노션 최종 저장 및 상태 변경",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3232,
-        -160
+        3536,
+        -32
       ],
       "id": "26c8e080-c014-46fa-b810-a1c928822bf7",
       "credentials": {
@@ -684,25 +685,50 @@
     },
     {
       "parameters": {
-        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
-        "text": "=✅ 팟캐스트 주제 검증 완료!\n\n📌 주제: {{ $json.topic }}\n🎯 점수: {{ $json.step5_result.score }}점\n✨ 상태: {{ $json.step5_result.status }}\n\n🔗 노션: https://notion.so/{{ $json.page_id.replace(/-/g, '') }}",
-        "additionalFields": {}
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.results[0].parent.page_id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "진행상황|select",
+              "selectValue": "1기획단계"
+            }
+          ]
+        },
+        "options": {}
       },
-      "name": "텔레그램 - 완료 알림",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
       "position": [
-        3424,
-        -160
+        3280,
+        -272
       ],
-      "id": "bfb18390-5a72-4880-8e93-1d5c895ff8a3",
-      "webhookId": "dd87fb33-0bdf-4ed6-b6b4-eae03ffe6fde",
+      "id": "46c22c7f-d24e-42b9-81f3-92d3d9e3eec5",
+      "name": "5단계 노션 상태 변경",
       "credentials": {
-        "telegramApi": {
-          "id": "lSg8TOZp3Ley9Rm4",
-          "name": "Telegram account"
+        "notionApi": {
+          "id": "lkw02Psh71yuksG7",
+          "name": "Notion account"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst result = item.step5_result;\n\n// Notion 블록 형식으로 변환\nconst blocks = [\n  {\n    \"object\": \"block\",\n    \"type\": \"heading_2\",\n    \"heading_2\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"📊 4단계: 최종 평가\" } }]\n    }\n  }\n];\n\n// 점수와 상태\nblocks.push({\n  \"object\": \"block\",\n  \"type\": \"paragraph\",\n  \"paragraph\": {\n    \"rich_text\": [{ \n      \"type\": \"text\", \n      \"text\": { \"content\": `점수: ${result.score || 0}점\\n상태: ${result.status || 'N/A'}` } \n    }]\n  }\n});\n\n// 리스크\nif (result.risks && Array.isArray(result.risks)) {\n  blocks.push({\n    \"object\": \"block\",\n    \"type\": \"heading_3\",\n    \"heading_3\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"⚠️ 리스크\" } }]\n    }\n  });\n  \n  result.risks.forEach(risk => {\n    blocks.push({\n      \"object\": \"block\",\n      \"type\": \"bulleted_list_item\",\n      \"bulleted_list_item\": {\n        \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": risk } }]\n      }\n    });\n  });\n}\n\n// 추천사항\nif (result.recommendations && Array.isArray(result.recommendations)) {\n  blocks.push({\n    \"object\": \"block\",\n    \"type\": \"heading_3\",\n    \"heading_3\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"💡 추천사항\" } }]\n    }\n  });\n  \n  result.recommendations.forEach(rec => {\n    blocks.push({\n      \"object\": \"block\",\n      \"type\": \"bulleted_list_item\",\n      \"bulleted_list_item\": {\n        \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": rec } }]\n      }\n    });\n  });\n}\n\nreturn {\n  ...item,\n  notion_blocks_step5: blocks\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3264,
+        -32
+      ],
+      "id": "0b81e557-3510-4376-8067-01dc0b071e3c",
+      "name": "5단계 노션 블록 변환"
     }
   ],
   "pinData": {},
@@ -981,7 +1007,12 @@
       "main": [
         [
           {
-            "node": "HTTP - 노션 최종 저장 및 상태 변경",
+            "node": "5단계 노션 상태 변경",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "5단계 노션 블록 변환",
             "type": "main",
             "index": 0
           }
@@ -990,9 +1021,19 @@
     },
     "HTTP - 노션 최종 저장 및 상태 변경": {
       "main": [
+        []
+      ]
+    },
+    "5단계 노션 상태 변경": {
+      "main": [
+        []
+      ]
+    },
+    "5단계 노션 블록 변환": {
+      "main": [
         [
           {
-            "node": "텔레그램 - 완료 알림",
+            "node": "HTTP - 노션 최종 저장 및 상태 변경",
             "type": "main",
             "index": 0
           }
@@ -1004,12 +1045,12 @@
   "settings": {
     "executionOrder": "v1",
     "callerPolicy": "workflowsFromSameOwner",
-    "executionTimeout": -1,
     "availableInMCP": false,
     "errorWorkflow": "95z57F64E9wjNMQy"
   },
-  "versionId": "08eaa247-3eab-4c69-ae14-769648082b39",
+  "versionId": "0a23dec0-fc65-477d-8b39-4954be5539bd",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "88ae2973bb5501cb62f53e4d67fc9df7995da7b1493ff6ebee530d5f1982b9b9"
   },
   "id": "dn8zewtECvj3g95u",
