@@ -1,0 +1,760 @@
+{
+  "name": "Apify Scrapes",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b7ba45f8-217c-4544-84f0-f5facba2d5b2",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.email }}",
+        "options": {
+          "historySize": 10000
+        }
+      },
+      "id": "022b5ed8-3293-4010-b93e-b6fd426c905c",
+      "name": "Remove Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        380,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/code_crafter~apollo-scraper/run-sync-get-dataset-items?token=apify_api_8oRUHyelWrnv4A6xuCuLen7Kl0gswG0lxQBN",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -40,
+        160
+      ],
+      "id": "54b7132f-3616-42ad-85df-b844d63074a2",
+      "name": "Get Dataset Item"
+    },
+    {
+      "parameters": {
+        "content": "## Apollo Work and Personal Email \nhttps://apify.com/code_crafter/apollo-scraper",
+        "height": 260,
+        "width": 940,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        60
+      ],
+      "id": "4792ae1f-2006-462d-81e1-f29aadf41c84",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.title }}",
+        "options": {
+          "historySize": 10000
+        }
+      },
+      "id": "b2fdcfba-a910-47eb-92f3-a4fcdd80d3a0",
+      "name": "Remove Duplicates1",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        380,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -40,
+        440
+      ],
+      "id": "11b1558d-5574-4156-9f56-a4d0d05f1354",
+      "name": "Get Dataset Item1"
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.url }}",
+        "options": {
+          "historySize": 10000
+        }
+      },
+      "id": "6cdc1f9f-ffba-4cf2-948d-8e7cae7ec80c",
+      "name": "Remove Duplicates2",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        380,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -40,
+        720
+      ],
+      "id": "63e6ac5c-217a-4c89-b402-761c03622075",
+      "name": "Get Dataset Item2"
+    },
+    {
+      "parameters": {
+        "content": "## Google Maps Extractor\nhttps://apify.com/compass/google-maps-extractor",
+        "height": 260,
+        "width": 940,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        340
+      ],
+      "id": "949e8cc4-13df-4bca-9b7b-fe823ba2e0d3",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Upwork Job Feed\nhttps://apify.com/jupri/upwork",
+        "height": 260,
+        "width": 940,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        620
+      ],
+      "id": "2e63fab4-31d6-43a6-9897-9c456f5e807f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "133c1281-dde9-421f-8bfa-ddd843c21f18",
+              "leftValue": "={{ $('Get Dataset Item').item.json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        160
+      ],
+      "id": "8cdcf789-22c8-4628-befe-b17b3da1e845",
+      "name": "Email Exists?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9025a457-110c-481c-930e-2dedabe17c98",
+              "name": "first_name",
+              "value": "={{ $json.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "3b3b756f-6fb5-4b0e-8e90-0ca3c64febab",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "b120361c-c05f-4d09-b0df-9b5bbd03ebeb",
+              "name": "linkedin_url",
+              "value": "={{ $json.linkedin_url }}",
+              "type": "string"
+            },
+            {
+              "id": "056f55a3-48b7-4681-8720-261f1e10d92c",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "1d685ca7-c35b-4242-a102-b260e36029d3",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "c37c66e5-7750-4b13-ba3e-a9c113f7a4f3",
+              "name": "organization.name",
+              "value": "={{ $json.organization.name }}",
+              "type": "string"
+            },
+            {
+              "id": "995fd583-ac0d-4705-bab7-134bf2d35b1f",
+              "name": "organization.website_url",
+              "value": "={{ $json.organization.website_url }}",
+              "type": "string"
+            },
+            {
+              "id": "106536d9-c8aa-4c6f-a14f-489589035cc8",
+              "name": "employment_history[0].start_date",
+              "value": "={{ $json.employment_history[0].start_date }}",
+              "type": "string"
+            },
+            {
+              "id": "9d29a41f-378b-48d2-9e6f-7e97ef724137",
+              "name": "Location",
+              "value": "={{ $json.city }} , {{ $json.state }} , {{ $json.country }}",
+              "type": "string"
+            },
+            {
+              "id": "fda6309b-5db4-4ec4-b25f-343f450b416a",
+              "name": "organization.linkedin_url",
+              "value": "={{ $json.organization.linkedin_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8337e608-534f-489c-8a4f-800d60987501",
+      "name": "Set Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        180,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4902f98b-09d4-46c4-a2d1-5f28a1cc6454",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "1f124772-3bcb-4946-bb07-c1dac0a036f3",
+              "name": "price",
+              "value": "={{ $json.price }}",
+              "type": "string"
+            },
+            {
+              "id": "73710dfd-a7fa-4628-ba55-d78a78b2a702",
+              "name": "categoryName",
+              "value": "={{ $json.categoryName }}",
+              "type": "string"
+            },
+            {
+              "id": "8a8054df-4603-4362-90f5-1a3988784ac3",
+              "name": "address",
+              "value": "={{ $json.address }}",
+              "type": "string"
+            },
+            {
+              "id": "cb9a70db-14da-4aca-a515-3bc764a386f7",
+              "name": "city",
+              "value": "={{ $json.city }}",
+              "type": "string"
+            },
+            {
+              "id": "ab2c88b3-a79f-4a51-9538-1fb4455477b8",
+              "name": "street",
+              "value": "={{ $json.street }}",
+              "type": "string"
+            },
+            {
+              "id": "d0ae135a-4083-47e9-962f-eac30d311ef4",
+              "name": "phone",
+              "value": "={{ $json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "dcc96ed1-4d19-4ea4-8c97-7c888077ea03",
+              "name": "totalScore",
+              "value": "={{ $json.totalScore }}",
+              "type": "number"
+            },
+            {
+              "id": "1d403c10-43e9-4f52-beca-7eca52f785fb",
+              "name": "permanentlyClosed",
+              "value": "={{ $json.permanentlyClosed }}",
+              "type": "boolean"
+            },
+            {
+              "id": "e8f76fbc-b37b-44bf-80ab-0429b43d52af",
+              "name": "searchPageUrl",
+              "value": "={{ $json.searchPageUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "3bf2b3c0-298c-48b1-9ec3-5535dfda5b0a",
+              "name": "description",
+              "value": "={{ $json.description }}",
+              "type": "string"
+            },
+            {
+              "id": "ee4a9887-e7ad-44e0-b644-5eca624d3a5e",
+              "name": "website",
+              "value": "={{ $json.website }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "472e36f5-f751-43ce-966a-bfc2a8c97d5b",
+      "name": "Set Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        180,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2f8dadd9-d6f7-4065-a3d1-f7ede62ef722",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "3cbbe8be-ff2b-4f24-84e8-4600de5d1c7f",
+              "name": "buyer.company.name",
+              "value": "={{ $json.buyer.company.name }}",
+              "type": "string"
+            },
+            {
+              "id": "19238d19-d5d5-4d18-8901-956a1ca342c3",
+              "name": "categoryGroup.name",
+              "value": "={{ $json.categoryGroup.name }}",
+              "type": "string"
+            },
+            {
+              "id": "69a2f3be-4c6b-45d9-bad1-51b8b82c3fc2",
+              "name": "buyer.stats.score",
+              "value": "={{ $json.buyer.stats.score }}",
+              "type": "number"
+            },
+            {
+              "id": "cda89fbc-9a2a-4769-ab31-5c61fe429bd1",
+              "name": "buyer.location.country",
+              "value": "={{ $json.buyer.location.country }}",
+              "type": "string"
+            },
+            {
+              "id": "bda0cab6-13ae-4531-a936-336e185d993d",
+              "name": "description",
+              "value": "={{ $json.description }}",
+              "type": "string"
+            },
+            {
+              "id": "bab808ac-6ca5-4407-8d7e-1c6ba792a5bb",
+              "name": "buyer.location.city",
+              "value": "={{ $json.buyer.location.city }}",
+              "type": "string"
+            },
+            {
+              "id": "ed9adffc-0397-4f9d-8be1-4e0416dd666f",
+              "name": "buyer.stats.totalCharges.amount",
+              "value": "={{ $json.buyer.stats.totalCharges.amount }}",
+              "type": "number"
+            },
+            {
+              "id": "4677c44c-3fb2-4c87-a42d-9f78c300fdd1",
+              "name": "skills",
+              "value": "={{ $json.skills }}",
+              "type": "array"
+            },
+            {
+              "id": "7e99a740-1914-4105-8388-cbc0469c18d5",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5f7d8406-eb14-4f96-ad44-44f1d7e9ab9b",
+      "name": "Set Fields2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        180,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bcbef5c4-e523-4fd7-a370-e2ba5c9f0ccd",
+              "leftValue": "={{ $('Get Dataset Item1').item.json.permanentlyClosed }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        440
+      ],
+      "id": "f89ae2de-946f-4510-a2c6-636a092a15e2",
+      "name": "Closed?"
+    },
+    {
+      "parameters": {
+        "content": "# Quick Guide\n- [Apify](https://apify.com/) - You can scrape alot of data for free. At  the moment you can scrape up to 4000 leads on LinkedIn for free with the Apollo Scraper\n\n- If you really need to minimize cost, create new email accounts, and max out your usage limits per account. \n\n- Lots of great 'actors' to scrape nearly anything you can think of. I would say this will account for 90% of the internet.\n\n- Once you 'run' an 'actor' --- click API in the top right of console page, and copy \"Get Dataset Item\" URL\n\n- Paste into HTTP Request Node\n\n- Configure for your platform/CRM",
+        "height": 440,
+        "width": 420
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        380
+      ],
+      "id": "6158f656-d8fa-4f62-8321-35b873973fc6",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        540
+      ],
+      "id": "a2bd89c6-9796-42a5-9038-64eba77bd050",
+      "name": "ClickUp",
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "k6zNLe0bndFSxtod",
+          "name": "ClickUp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        900,
+        340
+      ],
+      "id": "32874172-f45c-4227-a495-b484b3f3be93",
+      "name": "Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "9ASS76OGQSYjWrAb",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "additionalFields": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        340
+      ],
+      "id": "b6c96241-19d9-4bdb-9d22-6997d366e64a",
+      "name": "HubSpot"
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "addToCampaign",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        540
+      ],
+      "id": "2f171756-e9ce-432e-af8f-4f7749d91381",
+      "name": "Salesforce"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1340,
+        340
+      ],
+      "id": "17ad3e85-97c6-40e8-95fe-07ac3bae7403",
+      "name": "Notion"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        900,
+        540
+      ],
+      "id": "ccc8affe-0a33-4623-af92-754ed9940bb0",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6cost8bh8vvPcw8J",
+          "name": "malenAI Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Configure for nearly any platform",
+        "height": 480,
+        "width": 700,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        860,
+        260
+      ],
+      "id": "5c0ff81a-f06f-42f7-adc0-6a48026bee99",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        []
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Email Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Dataset Item": {
+      "main": [
+        [
+          {
+            "node": "Set Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Dataset Item1": {
+      "main": [
+        [
+          {
+            "node": "Set Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Dataset Item2": {
+      "main": [
+        [
+          {
+            "node": "Set Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fields": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fields1": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fields2": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates1": {
+      "main": [
+        [
+          {
+            "node": "Closed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ClickUp": {
+      "main": [
+        []
+      ]
+    },
+    "Airtable": {
+      "main": [
+        []
+      ]
+    },
+    "HubSpot": {
+      "main": [
+        []
+      ]
+    },
+    "Salesforce": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "93992d82-ea66-4a00-af6d-a4a71fe3984f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "98b3713886201ff4b893bf76344eb318d1967daca7fbec4f1c4ea46dbd7cefb0"
+  },
+  "id": "Yc8cZvqJ1xqfMotY",
+  "tags": []
+}
