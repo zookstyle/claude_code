@@ -1,0 +1,355 @@
+{
+  "name": "Gmail AI Email Assistant [Template]",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "db58c9d2-9b52-464b-9a71-8bfea65b1fef",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "mAcwXQKpfFUJXdqR",
+          "name": "Gmail account (REPLACETHIS@WITHYOURS.COM)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Gmail AI Email Assistant\nAn AI email assistant that filter, labels, and create tasks based on your incoming emails.\n\n### Set up instructions:\n1. Add a new credential \"Gmail OAuth2 API\" by following this [guide](https://docs.n8n.io/integrations/builtin/credentials/google/oauth-single-service/). Assign your Gmail OAuth2 account to the node \"Gmail Trigger\" and other Gmail tools.\n2. Add a new credential \"Anthropic Account\" by following this [guide](https://docs.n8n.io/integrations/builtin/credentials/anthropic/). Assign your Anthropic account to the node \"Anthropic Chat Model\".\n3. Update the rules and about fields in the node \"Set Data\".\n\n**Note**: If you make change to Gmail tools, do not forget to adjust the system prompt and rules.",
+        "height": 320,
+        "width": 580
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -380
+      ],
+      "id": "a90ea918-e564-4396-849e-9d4d3ae7819d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8ecdd688-c83d-44e1-bdf0-3c79097ffe91",
+              "name": "About",
+              "value": "My name is John Doe and I am the founder of JDO Marketing, a marketing agency.\nWe offer the following services:\n1. SEO\n2. Digital PR\n3. Content marketing",
+              "type": "string"
+            },
+            {
+              "id": "044e24a6-abfa-4e2a-a3b7-8787ca9066dc",
+              "name": "Rules",
+              "value": "=1. NEWSLETTERS:\n   - Classify as \"newsletter\" if:\n     a) The email has an unsubscribe link AND\n     b) The content is clearly a general mass communication (industry updates, regular bulletins, etc.) AND\n     c) The email is NOT any of the following:\n        - A transactional email (account notifications, confirmations)\n        - A service notification about a specific action or account\n        - An invoice or receipt\n        - A product/service update for something you're actively using\n        - A security alert or important account information\n   \n2. SPAM:\n   - Classify as \"spam\" ONLY if the email clearly meets these criteria:\n     a) Offers unsolicited products or services that I have never expressed interest in or purchased before\n     b) Is clearly a cold outreach with a sales pitch (direct or indirect)\n     c) Proposes generic \"partnerships\" or \"collaborations\" that don't specifically relate to my marketing services\n     d) Contains obvious suspicious elements like requests for sensitive information or suspicious links\n     \n     DO NOT classify as spam if:\n     a) The email appears to be from a service or software I already use\n     b) The email is a response to something I might have inquired about\n     c) The email contains legitimate time-sensitive information\n     d) There is any doubt about whether it's spam or legitimate communication\n   \n3. POTENTIAL LEADS:\n   - Classify as \"potential lead\" if:\n     a) The sender is specifically inquiring about SEO, Digital PR, or Content marketing services\n     b) The message asks about pricing, processes, or specific details related to JDO Marketing's services\n     c) The sender mentions being referred by an existing client\n     d) The email is in a foreign language but clearly appears to be requesting information about your services\n   - All potential leads should be starred\n   \n4. ONGOING CONVERSATIONS:\n   - If the email is part of an existing email thread or directly references previous communications with JDO Marketing, star the email.\n\n5. EMAILS REQUIRING RESPONSE:\n   - Star any email that appears to require or expect a response, even if it doesn't fall into the categories above.\n\n6. DEFAULT ACTION:\n   - For any email that doesn't clearly match the above criteria, do nothing. This includes:\n     a) Transactional emails from services you use\n     b) Account notifications and alerts\n     c) Invoices and receipts\n     d) Important service updates\n     e) Any email where classification is uncertain",
+              "type": "string"
+            },
+            {
+              "id": "929d8fa5-1a08-4f2a-be8f-6ee001a4211e",
+              "name": "Your Name",
+              "value": "John Doe",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        180,
+        0
+      ],
+      "id": "3b047e86-d05c-409e-8043-dc4310a2a3fa",
+      "name": "Set Data"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "603ba5ea-030a-4f45-813b-c4db47a80776",
+              "name": "Sender",
+              "value": "={{ $('Gmail Trigger').item.json.headers.from }}",
+              "type": "string"
+            },
+            {
+              "id": "fb20d112-aca6-4444-b8b4-03a2d28be786",
+              "name": "Subject",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "9391a92c-f9ce-4030-9c9a-5314419f44ea",
+              "name": "Message",
+              "value": "={{ $('Gmail Trigger').item.json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        380,
+        0
+      ],
+      "id": "dd834581-67c0-4151-b85f-74a2b55be8d5",
+      "name": "Email Content"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=We've just received a new email! Here are the details:\n\nSender: {{ $json.Sender }}\nSubject: {{ $json.Subject }}\nMessage: \n{{ $json.Message }}",
+        "options": {
+          "systemMessage": "=You are an AI email assistant for {{ $('Set Data').item.json['Your Name'] }}. Your task is to analyze incoming emails and classify them according to specific rules to help manage {{ $('Set Data').item.json['Your Name'] }}'s inbox efficiently.\n\n<about>\n{{ $('Set Data').item.json.About }}\n</about>\n\n<rules>\n{{ $('Set Data').item.json.Rules }}\n</rules>\n\nANALYSIS APPROACH:\n- Think step by step\n- Carefully examine both subject line and email content\n- Compare the content with JDO Marketing's services\n- Only classify when confident about the category\n- When in doubt between any classification, choose to do nothing rather than risk miscategorizing important emails\n- Be especially cautious about marking emails as spam - only do so when absolutely certain\n\nFor each email, you will receive:\n- {Sender}: The email address and/or name of the sender\n- {Subject}: The subject line of the email\n- {Message}: The plain text content of the email\n\nProvide your analysis in the following format:\n\nCLASSIFICATION: [Your classification: Newsletter, Spam, Potential Lead, Ongoing Conversation, or No Special Treatment]\nACTION: [Select the appropriate action(s):\n- For newsletters: \"Define Newsletter\"\n- For spam: \"Define Spam\"\n- For potential leads: \"Define Potential Lead\" AND \"Star Email\"\n- For ongoing conversations: \"Star Email\"\n- For emails requiring response: \"Star Email\"\n- For everything else: \"Do nothing\"]\nREASONING: [Brief explanation of why you classified the email this way]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "18f7883c-68f7-4c6c-b0c5-68c95a086c24",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "SPAM"
+        ]
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        620,
+        200
+      ],
+      "id": "cc6f84d4-dd73-4bf9-a6a7-9ed9b642bc16",
+      "name": "Define Spam",
+      "webhookId": "2103a0a7-b591-4d0b-8669-fe592fccf117",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "mAcwXQKpfFUJXdqR",
+          "name": "Gmail account (REPLACETHIS@WITHYOURS.COM)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_4785792356235518112"
+        ]
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        780,
+        200
+      ],
+      "id": "248659d8-3551-42d0-b97a-7427bed99108",
+      "name": "Define Potential Lead",
+      "webhookId": "eebd1ad3-233d-451c-8316-c15dbb08db56",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "mAcwXQKpfFUJXdqR",
+          "name": "Gmail account (REPLACETHIS@WITHYOURS.COM)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_8168725579556692872"
+        ]
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        940,
+        200
+      ],
+      "id": "dde6ffcf-07f3-47f4-92ff-a51fcc7c64d3",
+      "name": "Define Newsletter",
+      "webhookId": "af57d76b-622b-424a-bc23-953d82723915",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "mAcwXQKpfFUJXdqR",
+          "name": "Gmail account (REPLACETHIS@WITHYOURS.COM)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "STARRED"
+        ]
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1080,
+        200
+      ],
+      "id": "0ed1068a-b36c-4494-8998-4d6735973530",
+      "name": "Star Email",
+      "webhookId": "0ea2f03e-9ca4-43b7-9e8e-90e765572c6d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "mAcwXQKpfFUJXdqR",
+          "name": "Gmail account (REPLACETHIS@WITHYOURS.COM)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-haiku-20241022",
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        460,
+        200
+      ],
+      "id": "d9e93f06-2ecc-49f6-a346-9ed2876abbdc",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "pwcr2E5pnvSxI76x",
+          "name": "Anthropic account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Data": {
+      "main": [
+        [
+          {
+            "node": "Email Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Content": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Spam": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Potential Lead": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Newsletter": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Star Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "63f0de57-b004-40dd-a481-7e440aacb0e2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3b02b4d565b70d8766b64aa225626d46b11a527d9f5fe390a8405f2a09e8b8a4"
+  },
+  "id": "KF6LxLBfzoqE7sVP",
+  "tags": []
+}
