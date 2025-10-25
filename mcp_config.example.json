@@ -7,8 +7,8 @@
         "MCP_MODE": "stdio",
         "LOG_LEVEL": "error",
         "DISABLE_CONSOLE_OUTPUT": "true",
-        "N8N_API_URL": "https://n8n.autobritedirect.kr",
-        "N8N_API_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZDIzMjA2Ny1mYmYyLTQ2YWYtYTRjNy05MjkzMzA0NTIxNzEiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzYxMzI0MTgwfQ.hDbf8N0ab_OuB-Yg-7lbZIvr1W0i9EKhGFsz7b4nZ1o"
+        "N8N_API_URL": "YOUR_N8N_INSTANCE_URL",
+        "N8N_API_KEY": "YOUR_N8N_API_KEY"
       }
     },
     "playwright": {

@@ -8,6 +8,9 @@ yarn.lock
 .env.local
 .env.*.local
 
+# MCP Config with sensitive keys
+mcp_config.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
