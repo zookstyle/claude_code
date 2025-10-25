@@ -14,7 +14,8 @@
 2. **3단계 요청 준비** - Claude API 요청 생성 로직 구현
 3. **2단계 노션 저장 URL** - page_id 참조 오류 수정
 4. **5단계 ChatGPT API** - OpenAI credentials 추가
-5. **Step 1 & 2 파싱 노드** - 마크다운으로 감싸진 JSON 추출 개선 ⭐ NEW
+5. **Step 1 & 2 파싱 노드** - 마크다운으로 감싸진 JSON 추출 개선
+6. **Step 3 & 5 데이터 참조** - Notion API 응답 대신 파싱 노드 참조 ⭐ NEW
 
 ---
 

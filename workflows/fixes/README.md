@@ -8,7 +8,7 @@
 
 ---
 
-## 🔍 발견된 오류 (5가지)
+## 🔍 발견된 오류 (6가지)
 
 ### 🔴 1. 노드 참조 불일치 (치명적)
 **영향받는 노드**: 텔레그램 에러 알림 노드 4개
@@ -175,6 +175,88 @@ if (jsonMatch) {
 
 ---
 
+### 🔴 6. Step 3 & Step 5 잘못된 데이터 참조 (치명적) ⭐ NEW
+**영향받는 노드**:
+- 3단계 요청 준비
+- 3단계 결과 파싱1
+- 5단계 결과 파싱1
+
+**문제**:
+이 노드들이 **Notion API 응답**을 참조하여 워크플로우 데이터를 가져오려고 시도:
+
+```javascript
+// 잘못된 참조
+const previousData = $('HTTP - 노션 2단계 저장1').item.json;
+```
+
+Notion API 응답은 **블록 구조만** 반환:
+```json
+{
+  "object": "list",
+  "results": [/* Notion blocks */],
+  "next_cursor": null,
+  "has_more": false
+}
+```
+
+`step1_result`, `step2_result`, `topic`, `page_id` 같은 워크플로우 데이터는 **전혀 없음**!
+
+**실제 에러 증상**:
+```javascript
+// 3단계 요청 준비 출력
+{
+  "prompt_step3": "주제: 제목 없음\n\n1단계 결과: {}\n\n2단계 결과: {}"
+}
+```
+
+모든 데이터가 빈 값 → Claude가 "입력 데이터가 비어있다" 에러 반환
+
+**원인**:
+- Notion 저장 노드는 Notion API 응답만 반환
+- 워크플로우 데이터는 **파싱 노드**에 누적됨
+- 파싱 노드는 `...previousData`로 이전 데이터를 유지하면서 새 결과 추가
+
+**데이터 흐름**:
+```
+1단계 결과 파싱1 → step1_result, page_id, topic
+         ↓
+HTTP - 노션 1단계 저장1 → Notion 응답만 (워크플로우 데이터 없음) ❌
+         ↓
+2단계 결과 파싱1 → step1_result + step2_result (누적)
+         ↓
+HTTP - 노션 2단계 저장1 → Notion 응답만 (워크플로우 데이터 없음) ❌
+         ↓
+3단계 요청 준비 → 여기서 step1, step2 결과 필요!
+```
+
+**수정**:
+Notion API 응답 대신 **파싱 노드** 참조:
+
+```javascript
+// ✅ 올바른 참조
+// 3단계 요청 준비
+const previousData = $('2단계 결과 파싱1').item.json;
+// → step1_result, step2_result, topic, page_id 모두 포함
+
+// 3단계 결과 파싱1
+const previousData = $('3단계 요청 준비').item.json;
+
+// 5단계 결과 파싱1
+const previousData = $('3단계 결과 파싱1').item.json;
+```
+
+**추가 개선**:
+Step 3와 Step 5 파싱 노드에도 개선된 JSON 추출 로직 적용 (Fix #5와 동일)
+
+**cascade 효과**:
+- ✅ Step 3가 실제 분석 결과를 받아 의미있는 대본 구조 생성
+- ✅ 모든 단계의 데이터가 정상적으로 누적되어 전달
+- ✅ Notion 저장 실패해도 워크플로우 데이터 체인 유지
+
+**파일**: `06-step3-data-reference-fix.json`
+
+---
+
 ## 📁 파일 구조
 
 ```
@@ -184,7 +266,8 @@ workflows/fixes/
 ├── 02-step3-request-preparation-fix.json   # 3단계 요청 준비 수정
 ├── 03-step2-notion-save-url-fix.json       # 2단계 노션 저장 URL 수정
 ├── 04-step5-chatgpt-credentials-fix.json   # 5단계 인증 추가
-└── 05-parsing-json-from-markdown-fix.json  # Step 1 & 2 파싱 개선 ⭐ NEW
+├── 05-parsing-json-from-markdown-fix.json  # Step 1 & 2 파싱 개선
+└── 06-step3-data-reference-fix.json        # Step 3 & 5 데이터 참조 수정 ⭐ NEW
 ```
 
 ---
