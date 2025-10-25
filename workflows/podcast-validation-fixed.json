@@ -1,0 +1,1011 @@
+{
+  "name": "팟캐스트 주제 검증 자동화",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "podcast-validation-trigger",
+        "options": {}
+      },
+      "name": "노션 웹훅 트리거",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1264,
+        784
+      ],
+      "id": "57bb158f-b2fe-4e17-a926-a54abafbd3f5",
+      "webhookId": "notion-podcast-webhook"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=❌ 1단계 실패\n\n📌 주제: {{ $('변수 설정1').item.json.topic }}\n🚨 에러: {{ $json.error?.message || '알 수 없는 에러' }}\n\n워크플로우가 중단되었습니다.",
+        "additionalFields": {}
+      },
+      "name": "텔레그램 - 1단계 에러",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        1088
+      ],
+      "id": "3e95de6b-c6ac-4726-aa8f-5b2978b45bda",
+      "webhookId": "d3b96a89-47b7-43a5-a9eb-fa833ea15998",
+      "credentials": {
+        "telegramApi": {
+          "id": "lSg8TOZp3Ley9Rm4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=❌ 2단계 실패\n\n📌 주제: {{ $('변수 설정1').item.json.topic }}\n🚨 에러: {{ $json.error?.message || '알 수 없는 에러' }}\n\n워크플로우가 중단되었습니다.",
+        "additionalFields": {}
+      },
+      "name": "텔레그램 - 2단계 에러",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        1088
+      ],
+      "id": "49889f9b-e670-41d6-9876-46443392b246",
+      "webhookId": "4faef8cd-11c7-4c78-90b8-f23458ead8a3",
+      "credentials": {
+        "telegramApi": {
+          "id": "lSg8TOZp3Ley9Rm4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=❌ 3단계 실패\n\n📌 주제: {{ $('변수 설정1').item.json.topic }}\n🚨 에러: {{ $json.error?.message || '알 수 없는 에러' }}\n\n워크플로우가 중단되었습니다.",
+        "additionalFields": {}
+      },
+      "name": "텔레그램 - 3단계 에러",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        2272,
+        1040
+      ],
+      "id": "5737a49e-ddcf-4b18-919a-3f63a6e9c0d7",
+      "webhookId": "telegram-error-3",
+      "credentials": {
+        "telegramApi": {
+          "id": "lSg8TOZp3Ley9Rm4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=❌ 5단계 실패\n\n📌 주제: {{ $('변수 설정1').item.json.topic }}\n🚨 에러: {{ $json.error?.message || '알 수 없는 에러' }}\n\n워크플로우가 중단되었습니다.",
+        "additionalFields": {}
+      },
+      "name": "텔레그램 - 5단계 에러",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        3248,
+        1088
+      ],
+      "id": "f2e487c4-f3ab-4028-9f70-755c7d0bf655",
+      "webhookId": "telegram-error-5",
+      "credentials": {
+        "telegramApi": {
+          "id": "lSg8TOZp3Ley9Rm4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst result = item.step1_result;\n\n// Notion 블록 형식으로 변환\nconst blocks = [\n  {\n    \"object\": \"block\",\n    \"type\": \"heading_2\",\n    \"heading_2\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"🎯 1단계: 서브토픽 분석\" } }]\n    }\n  }\n];\n\nif (result.subtopics && Array.isArray(result.subtopics)) {\n  result.subtopics.forEach((topic, index) => {\n    blocks.push({\n      \"object\": \"block\",\n      \"type\": \"heading_3\",\n      \"heading_3\": {\n        \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": `${index + 1}. ${topic.name}` } }]\n      }\n    });\n    \n    blocks.push({\n      \"object\": \"block\",\n      \"type\": \"paragraph\",\n      \"paragraph\": {\n        \"rich_text\": [{ \n          \"type\": \"text\", \n          \"text\": { \"content\": `시간: ${topic.duration}분\\n설명: ${topic.description}` } \n        }]\n      }\n    });\n  });\n  \n  blocks.push({\n    \"object\": \"block\",\n    \"type\": \"paragraph\",\n    \"paragraph\": {\n      \"rich_text\": [{ \n        \"type\": \"text\", \n        \"text\": { \"content\": `\\n총 예상 시간: ${result.total_duration}분\\n통과 여부: ${result.pass ? '✅ 통과' : '❌ 보완 필요'}\\n평가: ${result.reason}` } \n      }]\n    }\n  });\n}\n\nreturn {\n  ...item,\n  notion_blocks: blocks\n};"
+      },
+      "name": "1단계 노션 블록 변환",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        800
+      ],
+      "id": "c8050e46-e485-4f29-a5f1-a70a8a7f054b"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst result = item.step2_result;\n\n// Notion 블록 형식으로 변환\nconst blocks = [\n  {\n    \"object\": \"block\",\n    \"type\": \"heading_2\",\n    \"heading_2\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"📋 2단계: 대화 소재 발굴\" } }]\n    }\n  }\n];\n\nif (result.questions && Array.isArray(result.questions)) {\n  blocks.push({\n    \"object\": \"block\",\n    \"type\": \"heading_3\",\n    \"heading_3\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"질문 (Questions)\" } }]\n    }\n  });\n  \n  blocks.push({\n    \"object\": \"block\",\n    \"type\": \"paragraph\",\n    \"paragraph\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": result.questions.join('\\n') } }]\n    }\n  });\n}\n\nif (result.debates && Array.isArray(result.debates)) {\n  blocks.push({\n    \"object\": \"block\",\n    \"type\": \"heading_3\",\n    \"heading_3\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"논쟁 (Debates)\" } }]\n    }\n  });\n  \n  blocks.push({\n    \"object\": \"block\",\n    \"type\": \"paragraph\",\n    \"paragraph\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": result.debates.join('\\n\\n') } }]\n    }\n  });\n}\n\nif (result.tips && Array.isArray(result.tips)) {\n  blocks.push({\n    \"object\": \"block\",\n    \"type\": \"heading_3\",\n    \"heading_3\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"팁 (Tips)\" } }]\n    }\n  });\n  \n  blocks.push({\n    \"object\": \"block\",\n    \"type\": \"paragraph\",\n    \"paragraph\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": result.tips.join('\\n\\n') } }]\n    }\n  });\n}\n\nreturn {\n  ...item,\n  notion_blocks_step2: blocks\n};"
+      },
+      "name": "2단계 노션 블록 변환",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        800
+      ],
+      "id": "65193f37-8482-4582-abd7-cf700d843ea9"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 이전 단계의 데이터 가져오기\nconst previousData = $('HTTP - 노션 2단계 저장1').item.json;\n\n// 1단계와 2단계 결과 확인\nconst step1Result = previousData.step1_result || {};\nconst step2Result = previousData.step2_result || {};\nconst topic = previousData.topic || '제목 없음';\nconst pageId = previousData.page_id || '';\n\n// 3단계 프롬프트 생성\nconst prompt = `다음 팟캐스트 주제와 분석 결과를 바탕으로 대본 구조를 만들어주세요.\n\n주제: ${topic}\n\n1단계 결과 (서브토픽):\n${JSON.stringify(step1Result, null, 2)}\n\n2단계 결과 (소재 발굴):\n${JSON.stringify(step2Result, null, 2)}\n\n다음 형식으로 대본 구조를 만들어주세요:\n- 각 세그먼트는 제목, 시간, 논의 포인트를 포함\n- 세그먼트 간 자연스러운 전환 문구 추가\n- 총 50분 이상의 대본 구조\n\n출력 형식 (반드시 JSON으로만 응답):\n{\n  \"segments\": [\n    {\n      \"title\": \"세그먼트 제목\",\n      \"duration\": 10,\n      \"discussion_points\": [\"포인트1\", \"포인트2\"],\n      \"transition\": \"다음 세그먼트로의 전환 문구\"\n    }\n  ],\n  \"total_duration\": 55\n}`;\n\n// Claude API 요청 본문 생성\nconst claudeRequestBody = {\n  \"model\": \"claude-3-5-sonnet-20241022\",\n  \"max_tokens\": 4096,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": prompt\n    }\n  ]\n};\n\n// 이전 데이터와 함께 반환\nreturn {\n  ...previousData,\n  claudeRequestBody: claudeRequestBody,\n  prompt_step3: prompt\n};"
+      },
+      "name": "3단계 요청 준비",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        800
+      ],
+      "id": "83d2e06d-e005-47c0-8e1a-8455f2242995"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst result = item.step3_result;\n\n// Notion 블록 형식으로 변환\nconst blocks = [\n  {\n    \"object\": \"block\",\n    \"type\": \"heading_2\",\n    \"heading_2\": {\n      \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"📝 3단계: 대본 구조\" } }]\n    }\n  }\n];\n\nif (result.segments && Array.isArray(result.segments)) {\n  result.segments.forEach((segment, index) => {\n    blocks.push({\n      \"object\": \"block\",\n      \"type\": \"heading_3\",\n      \"heading_3\": {\n        \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": `${index + 1}. ${segment.title} (${segment.duration}분)` } }]\n      }\n    });\n    \n    if (segment.discussion_points && Array.isArray(segment.discussion_points)) {\n      blocks.push({\n        \"object\": \"block\",\n        \"type\": \"paragraph\",\n        \"paragraph\": {\n          \"rich_text\": [{ \n            \"type\": \"text\", \n            \"text\": { \"content\": `논의 포인트:\\n${segment.discussion_points.map(p => `• ${p}`).join('\\n')}` } \n          }]\n        }\n      });\n    }\n    \n    if (segment.transition) {\n      blocks.push({\n        \"object\": \"block\",\n        \"type\": \"paragraph\",\n        \"paragraph\": {\n          \"rich_text\": [{ \n            \"type\": \"text\", \n            \"text\": { \"content\": `전환: ${segment.transition}` } \n          }]\n        }\n      });\n    }\n  });\n}\n\nreturn {\n  ...item,\n  notion_blocks_step3: blocks\n};"
+      },
+      "name": "3단계 노션 블록 변환",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        800
+      ],
+      "id": "7086498f-1531-445c-a58e-fb54fed083f3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 노션 자동화 웹훅에서 받은 데이터 파싱\nconst webhookData = $input.item.json;\n\n// body.data 안에 실제 페이지 정보가 있음\nconst pageData = webhookData.body?.data || webhookData.data || webhookData;\n\nconst pageId = pageData.id || '';\nconst pageName = pageData.properties?.Name?.title?.[0]?.plain_text || '제목 없음';\n\n// 로깅용 (디버깅)\nconsole.log('페이지 ID:', pageId);\nconsole.log('페이지 이름:', pageName);\n\n// 페이지 ID가 없으면 에러 발생\nif (!pageId) {\n  throw new Error('페이지 ID를 찾을 수 없습니다. 웹훅 데이터를 확인해주세요.');\n}\n\nreturn {\n  page_id: pageId,\n  topic: pageName,\n  webhook_raw: pageData\n};"
+      },
+      "name": "웹훅 데이터 파싱1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1024,
+        816
+      ],
+      "id": "50b819c8-c704-49ce-912f-edf905727b63"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.page_id }}",
+          "mode": "id"
+        }
+      },
+      "name": "노션 페이지 상세 정보 가져오기1",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        -816,
+        816
+      ],
+      "id": "6558f00d-2947-45be-99f3-2f01e8e3bf44",
+      "credentials": {
+        "notionApi": {
+          "id": "lkw02Psh71yuksG7",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "page_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "name": "topic",
+              "value": "={{ $json.property_name || $json.name }}",
+              "type": "string"
+            },
+            {
+              "name": "prompt_step1",
+              "value": "=다음 팟캐스트 주제를 1시간 분량으로 진행하기 위해 5개의 서브토픽으로 나눠주세요. 각 서브토픽은 10분 이상 대화가 가능해야 합니다.\n\n주제: ${$json.property_name || $json.name}\n\n**중요**: \n- 2025년 현재 실제로 일어나고 있는 트렌드를 기반으로 작성\n- 추상적인 미래 예측보다는 구체적인 제품, 브랜드, 사례 중심으로 구성\n- 일반 소비자들이 실제로 궁금해하고 적용할 수 있는 내용\n- 한국 시장 특성 반영 (예: 셀프 세차장 문화, 주요 케미컬 브랜드)\n\n예시 방향:\n- \"2025년 인기 세차 케미컬 브랜드 비교\"\n- \"겨울철 vs 여름철 세차 전략\"\n- \"세차장 vs 셀프 세차 vs 홈 세차 비용/효과 비교\"\n- \"실제 디테일러들이 추천하는 제품\"\n\n출력 형식 (반드시 JSON으로만 응답):\n{\n  \"subtopics\": [\n    {\"name\": \"서브토픽1\", \"duration\": 12, \"description\": \"설명\"},\n    {\"name\": \"서브토픽2\", \"duration\": 10, \"description\": \"설명\"}\n  ],\n  \"total_duration\": 57,\n  \"pass\": true,\n  \"reason\": \"통과 이유\"\n}",
+              "type": "string"
+            },
+            {
+              "name": "prompt_step2",
+              "value": "=다음 팟캐스트 주제와 서브토픽을 바탕으로 대화 소재를 발굴해주세요.\n\n주제: {{ $json.property_name || $json.name }}\n\n다음을 찾아주세요:\n1. 초보자가 가장 많이 하는 질문 20개\n2. 논쟁거리 5개\n3. 전문가만 아는 팁 10개\n\n유튜브 댓글, 세차 카페, 커뮤니티에서 실제 사용자들이 궁금해하는 내용을 찾아주세요.\n\n출력 형식 (반드시 JSON으로만 응답):\n{\n  \"questions\": [\"질문1\", \"질문2\"],\n  \"debates\": [\"논쟁1\", \"논쟁2\"],\n  \"tips\": [\"팁1\", \"팁2\"]\n}",
+              "type": "string"
+            },
+            {
+              "name": "prompt_step5",
+              "value": "=다음 팟캐스트 기획 내용을 종합 평가해주세요.\n\n주제: {{ $json.property_name || $json.name }}\n\n체크리스트:\n□ 서브토픽 5개 이상\n□ 질문거리 20개 이상\n□ 논쟁 포인트 3개 이상\n□ 대본 50분 이상\n□ 실전 사례 5개 이상\n□ 게스트 3명 모두 기여 가능\n□ 쇼츠 소재 10개 이상\n\n출력 형식 (반드시 JSON으로만 응답):\n{\n  \"score\": 85,\n  \"checklist\": {\n    \"subtopics\": true,\n    \"questions\": true,\n    \"debates\": true,\n    \"script_length\": true,\n    \"examples\": true,\n    \"guests\": true,\n    \"shorts\": true\n  },\n  \"status\": \"통과\",\n  \"risks\": [\"리스크1\", \"리스크2\"],\n  \"recommendations\": [\"추천1\", \"추천2\"],\n  \"shorts_ideas\": [\"쇼츠 아이디어 1\", \"쇼츠 아이디어 2\"]\n}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "변수 설정1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -608,
+        816
+      ],
+      "id": "3f9446c8-8af6-4624-a55d-9ad43f76de2a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": $('변수 설정1').item.json.prompt_step1\n    }\n  ]\n} }}",
+        "options": {}
+      },
+      "name": "1단계 - Perplexity (주제 확장성)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        816
+      ],
+      "id": "743b5c07-e67c-42dc-b70a-5685ee77d929",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "92ePIK7tzNSFo1sR",
+          "name": "Header Auth Perplexity"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.choices?.[0]?.message?.content }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "id": "6152325b-88af-4d39-9879-2fd90a8f315d"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "에러 체크 - 1단계1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        896
+      ],
+      "id": "79f23b9b-ef9f-467d-aea4-c652686bf020"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json;\n\nconst content = response.choices?.[0]?.message?.content || '';\n\nif (!content) {\n  return { \n    step1_result: { error: '응답 없음' }, \n    step1_raw: '',\n    page_id: $('변수 설정1').item.json.page_id,\n    topic: $('변수 설정1').item.json.topic\n  };\n}\n\nlet result;\ntry {\n  const cleaned = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  result = JSON.parse(cleaned);\n} catch (e) {\n  return { \n    step1_result: { error: 'JSON 파싱 실패', raw: content },\n    step1_raw: content,\n    page_id: $('변수 설정1').item.json.page_id,\n    topic: $('변수 설정1').item.json.topic\n  };\n}\n\nreturn {\n  step1_result: result,\n  step1_raw: content,\n  page_id: $('변수 설정1').item.json.page_id,\n  topic: $('변수 설정1').item.json.topic\n};"
+      },
+      "name": "1단계 결과 파싱1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        800
+      ],
+      "id": "558644df-109a-45f5-9f13-7ff6fbf9c838"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/blocks/{{ $json.page_id }}/children",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"children\": $json.notion_blocks } }}",
+        "options": {}
+      },
+      "name": "HTTP - 노션 1단계 저장1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        800
+      ],
+      "id": "abc83311-4d66-434e-b242-0a08fbf75006",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "2w6Pubp1J4RcxWRj",
+          "name": "Bearer Auth Notion"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": $('변수 설정1').item.json.prompt_step2\n    }\n  ]\n} }}",
+        "options": {}
+      },
+      "name": "2단계 - Perplexity (소재 발굴)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        608,
+        800
+      ],
+      "id": "e85f1a63-a576-444f-b2cc-783b212ad60d",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "92ePIK7tzNSFo1sR",
+          "name": "Header Auth Perplexity"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.choices?.[0]?.message?.content }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "에러 체크 - 2단계1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        816,
+        912
+      ],
+      "id": "abcd9e74-8b5f-4ac0-9e98-083615c07f8f"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json;\nconst previousData = $('HTTP - 노션 1단계 저장1').item.json;\n\nconst content = response.choices?.[0]?.message?.content || '';\n\nif (!content) {\n  return { \n    ...previousData,\n    step2_result: { error: '응답 없음' }, \n    step2_raw: ''\n  };\n}\n\nlet result;\ntry {\n  const cleaned = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  result = JSON.parse(cleaned);\n} catch (e) {\n  return { \n    ...previousData,\n    step2_result: { error: 'JSON 파싱 실패', raw: content },\n    step2_raw: content\n  };\n}\n\nreturn {\n  ...previousData,\n  step2_result: result,\n  step2_raw: content\n};"
+      },
+      "name": "2단계 결과 파싱1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        800
+      ],
+      "id": "afc4beff-4205-4e2b-ba20-4146c5b61ade"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/blocks/{{ $json.page_id }}/children",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"children\": $json.notion_blocks_step2 } }}",
+        "options": {}
+      },
+      "name": "HTTP - 노션 2단계 저장1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1408,
+        800
+      ],
+      "id": "f4306db2-71bc-483d-80c9-6dd655350d97",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "2w6Pubp1J4RcxWRj",
+          "name": "Bearer Auth Notion"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.claudeRequestBody }}",
+        "options": {}
+      },
+      "name": "3단계 - Claude (대본 구조)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1808,
+        800
+      ],
+      "id": "5e61934e-8795-4c48-af23-039674bdb322",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "5t5SVNzke7pgHyIj",
+          "name": "Header Auth Claude"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.content?.[0]?.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "에러 체크 - 3단계1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        896
+      ],
+      "id": "a0c16203-c921-44d5-a583-d839c26fd347"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json;\nconst previousData = $('HTTP - 노션 2단계 저장1').item.json;\n\nconst content = response.content?.[0]?.text || '';\n\nif (!content) {\n  return { \n    ...previousData,\n    step3_result: { error: '응답 없음' }, \n    step3_raw: ''\n  };\n}\n\nlet result;\ntry {\n  const cleaned = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  result = JSON.parse(cleaned);\n} catch (e) {\n  return { \n    ...previousData,\n    step3_result: { error: 'JSON 파싱 실패', raw: content },\n    step3_raw: content\n  };\n}\n\nreturn {\n  ...previousData,\n  step3_result: result,\n  step3_raw: content\n};"
+      },
+      "name": "3단계 결과 파싱1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2208,
+        800
+      ],
+      "id": "e7a45128-36b5-49eb-8be1-c9a9dae961f0"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/blocks/{{ $json.page_id }}/children",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"children\": $json.notion_blocks_step3 } }}",
+        "options": {}
+      },
+      "name": "HTTP - 노션 3단계 저장1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2608,
+        800
+      ],
+      "id": "8ce35311-30cb-4229-a328-0fd7c4b76dde",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "2w6Pubp1J4RcxWRj",
+          "name": "Bearer Auth Notion"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"gpt-4\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": $('변수 설정1').item.json.prompt_step5\n    }\n  ]\n} }}",
+        "options": {}
+      },
+      "name": "5단계 - ChatGPT (최종 판단)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2800,
+        800
+      ],
+      "id": "d92a5b54-c174-4d27-bdce-8822c1468381",
+      "continueOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.choices?.[0]?.message?.content }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "에러 체크 - 5단계1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3008,
+        848
+      ],
+      "id": "5e85251b-a1be-4825-a904-adbc39b88642"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json;\nconst previousData = $('HTTP - 노션 3단계 저장1').item.json;\n\nconst content = response.choices?.[0]?.message?.content || '';\n\nif (!content) {\n  return { \n    ...previousData,\n    step5_result: { error: '응답 없음' }, \n    step5_raw: ''\n  };\n}\n\nlet result;\ntry {\n  const cleaned = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  result = JSON.parse(cleaned);\n} catch (e) {\n  return { \n    ...previousData,\n    step5_result: { error: 'JSON 파싱 실패', raw: content },\n    step5_raw: content\n  };\n}\n\nreturn {\n  ...previousData,\n  step5_result: result,\n  step5_raw: content\n};"
+      },
+      "name": "5단계 결과 파싱1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3200,
+        800
+      ],
+      "id": "13e600e6-e204-427e-a997-e3f890ecb4f0"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/pages/{{ $json.page_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"properties\": {\n    \"상태\": {\n      \"status\": {\n        \"name\": $json.step5_result.status === '통과' ? '검증완료' : '보완필요'\n      }\n    },\n    \"점수\": {\n      \"number\": $json.step5_result.score || 0\n    }\n  }\n} }}",
+        "options": {}
+      },
+      "name": "HTTP - 노션 최종 저장 및 상태 변경1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3408,
+        800
+      ],
+      "id": "0995329d-b2c6-433d-a3c1-e419ea94c118",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "2w6Pubp1J4RcxWRj",
+          "name": "Bearer Auth Notion"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=✅ 팟캐스트 주제 검증 완료!\n\n📌 주제: {{ $json.topic }}\n🎯 점수: {{ $json.step5_result.score }}점\n✨ 상태: {{ $json.step5_result.status }}\n\n🔗 노션: https://notion.so/{{ $json.page_id.replace(/-/g, '') }}",
+        "additionalFields": {}
+      },
+      "name": "텔레그램 - 완료 알림1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        3600,
+        800
+      ],
+      "id": "941e3d0b-b753-4ac4-b5bd-5914082b1585",
+      "webhookId": "dd87fb33-0bdf-4ed6-b6b4-eae03ffe6fde",
+      "credentials": {
+        "telegramApi": {
+          "id": "lSg8TOZp3Ley9Rm4",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "노션 웹훅 트리거": {
+      "main": [
+        [
+          {
+            "node": "웹훅 데이터 파싱1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1단계 노션 블록 변환": {
+      "main": [
+        [
+          {
+            "node": "HTTP - 노션 1단계 저장1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2단계 노션 블록 변환": {
+      "main": [
+        [
+          {
+            "node": "HTTP - 노션 2단계 저장1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3단계 요청 준비": {
+      "main": [
+        [
+          {
+            "node": "3단계 - Claude (대본 구조)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3단계 노션 블록 변환": {
+      "main": [
+        [
+          {
+            "node": "HTTP - 노션 3단계 저장1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "웹훅 데이터 파싱1": {
+      "main": [
+        [
+          {
+            "node": "노션 페이지 상세 정보 가져오기1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "노션 페이지 상세 정보 가져오기1": {
+      "main": [
+        [
+          {
+            "node": "변수 설정1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "변수 설정1": {
+      "main": [
+        [
+          {
+            "node": "1단계 - Perplexity (주제 확장성)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1단계 - Perplexity (주제 확장성)1": {
+      "main": [
+        [
+          {
+            "node": "에러 체크 - 1단계1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "에러 체크 - 1단계1": {
+      "main": [
+        [
+          {
+            "node": "1단계 결과 파싱1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "텔레그램 - 1단계 에러",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1단계 결과 파싱1": {
+      "main": [
+        [
+          {
+            "node": "1단계 노션 블록 변환",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - 노션 1단계 저장1": {
+      "main": [
+        [
+          {
+            "node": "2단계 - Perplexity (소재 발굴)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2단계 - Perplexity (소재 발굴)1": {
+      "main": [
+        [
+          {
+            "node": "에러 체크 - 2단계1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "에러 체크 - 2단계1": {
+      "main": [
+        [
+          {
+            "node": "2단계 결과 파싱1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "텔레그램 - 2단계 에러",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2단계 결과 파싱1": {
+      "main": [
+        [
+          {
+            "node": "2단계 노션 블록 변환",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - 노션 2단계 저장1": {
+      "main": [
+        [
+          {
+            "node": "3단계 요청 준비",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3단계 - Claude (대본 구조)1": {
+      "main": [
+        [
+          {
+            "node": "에러 체크 - 3단계1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "에러 체크 - 3단계1": {
+      "main": [
+        [
+          {
+            "node": "3단계 결과 파싱1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "텔레그램 - 3단계 에러",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3단계 결과 파싱1": {
+      "main": [
+        [
+          {
+            "node": "3단계 노션 블록 변환",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - 노션 3단계 저장1": {
+      "main": [
+        [
+          {
+            "node": "5단계 - ChatGPT (최종 판단)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5단계 - ChatGPT (최종 판단)1": {
+      "main": [
+        [
+          {
+            "node": "에러 체크 - 5단계1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "에러 체크 - 5단계1": {
+      "main": [
+        [
+          {
+            "node": "5단계 결과 파싱1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "텔레그램 - 5단계 에러",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5단계 결과 파싱1": {
+      "main": [
+        [
+          {
+            "node": "HTTP - 노션 최종 저장 및 상태 변경1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - 노션 최종 저장 및 상태 변경1": {
+      "main": [
+        [
+          {
+            "node": "텔레그램 - 완료 알림1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Seoul",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "f1c7030a-dd63-42b2-9baa-0fb7061f9cc4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "88ae2973bb5501cb62f53e4d67fc9df7995da7b1493ff6ebee530d5f1982b9b9"
+  },
+  "id": "95z57F64E9wjNMQy",
+  "tags": []
+}
