@@ -1,0 +1,631 @@
+{
+  "name": "RSS Feed RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "819b5273-005d-453f-9667-81d554a26fbd",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        3360,
+        -2160
+      ],
+      "webhookId": "233b5b66-aef1-424e-8e48-701f8788c41f"
+    },
+    {
+      "parameters": {
+        "content": "# Embedding Process\n- Watch RSS Feeds for updates\n- Loop to reduce likelihood of http request error\n- Clean HTML scrape\n- Embed in Supabase\n\n",
+        "height": 168,
+        "width": 722,
+        "color": 6
+      },
+      "id": "80db7426-200c-44df-8a00-28647b4081c8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4460,
+        -2420
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4200,
+        -1820
+      ],
+      "id": "4a4fd158-8089-4797-b0d8-30e5748a754d",
+      "name": "GPT 4o mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "utCndENqU3o62u6e",
+          "name": "n8n malenAI "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "f526619c-38d6-4c18-861d-3034a4e7fffa",
+      "name": "Supabase Vectorstore",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        5260,
+        -2140
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "kFAqJ1gU5j5zHNTM",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Update Knowledge Base",
+        "height": 540,
+        "width": 560,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5220,
+        -2220
+      ],
+      "id": "f0f593a2-11ab-49b6-948d-1882034f673b",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        5320,
+        -1920
+      ],
+      "id": "1968a972-9ee4-453f-82d0-56c61cf89776",
+      "name": "text-embedding-3-small",
+      "credentials": {
+        "openAiApi": {
+          "id": "utCndENqU3o62u6e",
+          "name": "n8n malenAI "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkSize": 2000,
+        "chunkOverlap": 200,
+        "options": {
+          "splitCode": "markdown"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        5540,
+        -1840
+      ],
+      "id": "4521fdf1-e600-45e2-a9a9-d06b7429b0e5",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "=Publish Date",
+                "value": "={{ $json.publishDate }}"
+              },
+              {
+                "name": "=Extraction Date",
+                "value": "={{ $json.extractedAt }}"
+              },
+              {
+                "name": "=content",
+                "value": "={{ $json.content }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "8449cc06-8cd1-4490-9674-6baba492f9b1",
+      "name": "Enhanced Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        5440,
+        -1980
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Message AI Agent \n\n\n",
+        "height": 280,
+        "width": 580,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3300,
+        -2240
+      ],
+      "id": "bb9d4da9-806a-4252-8255-2ec040567c0c",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "content": "## Connected to GPT-4o mini\n- double click to change LLM",
+        "width": 460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3220,
+        -1920
+      ],
+      "id": "14a71bff-f1d5-4383-b860-1cfb03fa5cce",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=*Role:\nYou are a helpful and intelligent chatbot.\n\nTask:\n-You will retrieve information from the vector store and output relevant information in response to the user query.\n- Show publish dates with each piece of information.\n- Display the information clearly in bullet points, clearly showcasing everything neatly.\n\n\nConstraints:\n- *ALWAYS* reference information from vector store.\n- If no information is found, stop the process and do not formulate your own responseto the query.\n- Only show articles up to 3 days old, from  {{ $now }}\n\n"
+        }
+      },
+      "id": "d6dd85a0-9b02-4d2f-9ca5-fb586c6e087a",
+      "name": "RAG Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        3540,
+        -2160
+      ]
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "id": "a387207e-f26d-471c-9553-6f846eb08ebc",
+      "name": "Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.1,
+      "position": [
+        3700,
+        -1700
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "aOqjEX4gtQaXz1IL",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Postgres database\n- can use Window Memory Buffer\n- Postgres allows scalability, and stores data externally",
+        "width": 600
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3220,
+        -1740
+      ],
+      "id": "bd6b0745-2d18-4900-80bd-d25052eabdcb",
+      "name": "Sticky Note16"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "79285a36-147f-4ac8-8020-6e1d835e6e1b",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        3540,
+        -1880
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "utCndENqU3o62u6e",
+          "name": "n8n malenAI "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "282b7701-31bd-444d-bfa7-c3ad21e3b1cf",
+      "name": "Supabase Knowledge Base",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        4100,
+        -1560
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "kFAqJ1gU5j5zHNTM",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "5e1f1c0a-55e0-40e5-bcdc-a98c355b7c17",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        3940,
+        -1420
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "utCndENqU3o62u6e",
+          "name": "n8n malenAI "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# RSS Feed Chatbot\n## Let me know if you have any questions. Certainly some room for improvement\n## Feel free to reach out at martin@malenAI.com",
+        "height": 1180,
+        "width": 1200,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3200,
+        -2420
+      ],
+      "id": "bc94f7c5-fead-4b4f-8476-f483e41ba27b",
+      "name": "Sticky Note19"
+    },
+    {
+      "parameters": {
+        "name": "project_data",
+        "description": "Retrieve information from vector store."
+      },
+      "id": "af52e7e5-da65-4a12-ac1d-aeb06b48a8d2",
+      "name": "Vector Store Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        4000,
+        -1940
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        4700,
+        -2120
+      ],
+      "id": "af185bdc-6f22-437a-9b65-05b96ad33fd3",
+      "name": "Loop_"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.link }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4840,
+        -2020
+      ],
+      "id": "5c6b2d20-e868-44c3-af06-55f867f7d3a7",
+      "name": "HTTP Request",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Watch RSS Feed Update -> store as embedding\n",
+        "height": 440,
+        "width": 720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4460,
+        -2200
+      ],
+      "id": "178202af-8503-41cf-95ff-8e13ff0a7b31",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 0
+            }
+          ]
+        },
+        "feedUrl": "https://stackoverflow.blog/feed/"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        4500,
+        -2120
+      ],
+      "id": "3b5750bd-e6a3-4072-b62c-053945da3475",
+      "name": "RSS Feed Trigger"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get the HTML content from the response\nconst html = $json.data\n\n// Simple HTML to text converter function\nfunction htmlToText(html) {\n  return html\n    .replace(/<style[^>]*>.*?<\\/style>/gs, '')\n    .replace(/<script[^>]*>.*?<\\/script>/gs, '')\n    .replace(/<header[^>]*>.*?<\\/header>/gs, '')\n    .replace(/<footer[^>]*>.*?<\\/footer>/gs, '')\n    .replace(/<nav[^>]*>.*?<\\/nav>/gs, '')\n    .replace(/<aside[^>]*>.*?<\\/aside>/gs, '')\n    .replace(/<[^>]+>/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .replace(/&nbsp;/g, ' ')\n    .replace(/&[^;]+;/g, '')\n    .trim();\n}\n\n// Extract publish date using multiple methods\nfunction extractPublishDate(html) {\n    const metaDateMatch = html.match(/<meta property=\"article:published_time\" content=\"([^\"]+)\"/i) ||\n                         html.match(/<meta name=\"published_time\" content=\"([^\"]+)\"/i) ||\n                         html.match(/<meta name=\"date\" content=\"([^\"]+)\"/i);\n    \n    if (metaDateMatch) {\n        return new Date(metaDateMatch[1]).toISOString();\n    }\n\n    const schemaMatch = html.match(/<script type=\"application\\/ld\\+json\">[^{]*({[\\s\\S]*?})[^}]*<\\/script>/i);\n    if (schemaMatch) {\n        try {\n            const schema = JSON.parse(schemaMatch[1]);\n            if (schema.datePublished) {\n                return new Date(schema.datePublished).toISOString();\n            }\n        } catch (e) {}\n    }\n\n    const datePattern = /(?:Published|Updated|Posted on|Date):\\s*([A-Za-z]+\\s+\\d{1,2},\\s+\\d{4})|(\\d{4}-\\d{2}-\\d{2})/i;\n    const dateMatch = html.match(datePattern);\n    if (dateMatch) {\n        const dateStr = dateMatch[1] || dateMatch[2];\n        return new Date(dateStr).toISOString();\n    }\n\n    return new Date().toISOString();\n}\n\n// Extract content\nlet content = '';\nconst articleMatch = html.match(/<article[^>]*>([\\s\\S]*?)<\\/article>/i);\n\nif (articleMatch && articleMatch[1]) {\n  content = htmlToText(articleMatch[1]);\n} else {\n  content = htmlToText(html);\n}\n\n// Clean up the content\nconst cleanContent = content\n  .replace(/\\s+/g, ' ')\n  .replace(/\\n+/g, '\\n')\n  .replace(/\\t+/g, ' ')\n  .trim();\n\n// Remove common navigation text and footer text\nconst finalContent = cleanContent\n  .replace(/Menu.*?Search/g, '')\n  .replace(/Share this article/g, '')\n  .replace(/Related articles/g, '')\n  .replace(/Leave a comment/g, '');\n\nreturn {\n  json: {\n    content: finalContent,\n    publishDate: extractPublishDate(html),\n    extractedAt: new Date().toISOString()\n  }\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5000,
+        -2020
+      ],
+      "id": "48f72827-8f79-4afc-9dfe-eb71cade24d2",
+      "name": "Cleanse Data"
+    },
+    {
+      "parameters": {
+        "content": "## Vector Store Tool\n- allows for retrieval of data in Knowledge Base",
+        "height": 420,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3940,
+        -2120
+      ],
+      "id": "9f15b801-d7a6-4260-bd1f-5f7bed0877ca",
+      "name": "Sticky Note17"
+    },
+    {
+      "parameters": {
+        "content": "## Knowledge Base\n- ensure embeddings match database ",
+        "height": 380,
+        "width": 520
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3860,
+        -1660
+      ],
+      "id": "a69a27d2-8d59-47f5-977d-08c1b61890e2",
+      "name": "Sticky Note18"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT 4o mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "text-embedding-3-small": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vectorstore",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Enhanced Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhanced Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vectorstore",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Knowledge Base": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Knowledge Base",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop_": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vectorstore",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Cleanse Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Feed Trigger": {
+      "main": [
+        [
+          {
+            "node": "Loop_",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleanse Data": {
+      "main": [
+        [
+          {
+            "node": "Loop_",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ba453e27-d4fc-4c02-9472-f01b4a1b734a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "98b3713886201ff4b893bf76344eb318d1967daca7fbec4f1c4ea46dbd7cefb0"
+  },
+  "id": "GGW9xx6QZht0JZ2H",
+  "tags": [
+    {
+      "createdAt": "2025-02-17T00:04:34.038Z",
+      "updatedAt": "2025-02-17T00:04:34.038Z",
+      "id": "5N5pE7S340vbrhjE",
+      "name": "RAG"
+    }
+  ]
+}

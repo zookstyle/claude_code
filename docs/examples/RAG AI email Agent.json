@@ -1,0 +1,225 @@
+{
+  "name": "Luxury Watch Upsell AI",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "c54b7b5c-2f77-4c11-a6cc-55d1a8e4146e",
+      "name": "🔄 Scheduled Calls Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ],
+      "notes": "Initiates the workflow every 30 minutes to make calls to potential customers at a steady pace"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "baseId": "appXXXXXXXXXXXXXX",
+        "tableId": "tblXXXXXXXXXXXXXX",
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "b19d6da8-f71f-4b01-9752-45423590cfbf",
+      "name": "📋 Retrieve Potential Customers",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      },
+      "notes": "Pulls list of potential watch buyers from Airtable database including contact info and previous interaction history"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Filter out customers we've already called recently\nconst lastCalledDate = new Date(item.fields.LastContacted || '2000-01-01');\nconst daysSinceLastCall = Math.floor((Date.now() - lastCalledDate) / (1000 * 60 * 60 * 24));\n\n// Only proceed if we haven't called in at least 30 days and they have interest in luxury watches\nif (daysSinceLastCall >= 30 && item.fields.PhoneNumber && item.fields.LuxuryWatchInterest) {\n  return [{...item, proceed: true}];\n}\nreturn [];"
+      },
+      "id": "e34a25a9-c7db-4e38-b752-af9a6b4a9dd7",
+      "name": "⏱️ Filter Eligible Customers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ],
+      "notes": "Ensures we don't contact customers too frequently (only once every 30 days) and focuses on those with expressed interest in luxury watches"
+    },
+    {
+      "parameters": {
+        "apiKey": "{{$node[\"⚙️ Configuration Settings\"].json[\"apiKey\"]}}",
+        "phoneNumber": "{{$item.fields.PhoneNumber}}",
+        "callbackUrl": "{{$node[\"⚙️ Configuration Settings\"].json[\"callbackUrl\"]}}",
+        "callId": "{{$item.id}}-{{Date.now()}}",
+        "callerNumber": "{{$node[\"⚙️ Configuration Settings\"].json[\"callerNumber\"]}}"
+      },
+      "id": "9a8c32a1-d98e-4ebb-ae7e-45a7fcbd96b5",
+      "name": "📞 Initiate Customer Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        850,
+        300
+      ],
+      "notes": "Initiates outbound call to customer using Twilio API with proper caller ID and tracking"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "apiKey",
+              "value": "YOUR_TWILIO_API_KEY"
+            },
+            {
+              "name": "callerNumber",
+              "value": "+18005551234"
+            },
+            {
+              "name": "callbackUrl",
+              "value": "https://your-webhook-endpoint.com/call-handler"
+            },
+            {
+              "name": "vappyApiKey",
+              "value": "YOUR_VAPPY_API_KEY"
+            },
+            {
+              "name": "storePrefix",
+              "value": "Luxury Timepieces"
+            },
+            {
+              "name": "exclusiveWatchModel",
+              "value": "Rolex Daytona Platinum"
+            },
+            {
+              "name": "baseWatchPrice",
+              "value": "32500"
+            },
+            {
+              "name": "salesAgentName",
+              "value": "Alex"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7a2b1fca-c6c2-4d7a-aa32-f2e7df77fc56",
+      "name": "⚙️ Configuration Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        650,
+        100
+      ],
+      "notes": "Central configuration for all API keys, product details, pricing, and persona information"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Simulate waiting for call completion\n// In production, this would be replaced with a webhook\nawait new Promise(resolve => setTimeout(resolve, 2000));\n\n// Mock call result\nconst callId = $input.item(0).json.callId;\nreturn [{\"callId\": callId, \"status\": \"completed\"}];"
+      },
+      "id": "d9c71f14-95e7-4bde-a8b6-d8d07ed9c2c9",
+      "name": "⏳ Call Completion Handler",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ],
+      "notes": "Waits for call to complete - in production this would be replaced with a webhook callback from Twilio"
+    },
+    {
+      "parameters": {
+        "apiKey": "{{$node[\"⚙️ Configuration Settings\"].json[\"vappyApiKey\"]}}",
+        "callId": "{{$input.item(0).json.callId}}",
+        "prompt": "You are {{$node[\"⚙️ Configuration Settings\"].json[\"salesAgentName\"]}}, a luxury watch sales specialist at {{$node[\"⚙️ Configuration Settings\"].json[\"storePrefix\"]}}. Your goal is to upsell potential customers on our exclusive {{$node[\"⚙️ Configuration Settings\"].json[\"exclusiveWatchModel\"]}} watches. Base price starts at ${{$node[\"⚙️ Configuration Settings\"].json[\"baseWatchPrice\"]}} but your goal is to sell upgraded packages.\n\nKey requirements:\n- Keep responses concise (1-2 sentences max)\n- Use simple, conversational language (6th grade level)\n- Introduce yourself as a sales specialist from {{$node[\"⚙️ Configuration Settings\"].json[\"storePrefix\"]}}\n- Mention we're calling because they've shown interest in luxury watches\n- Focus on the exclusivity and limited availability of our watches\n- Start with base model price, then suggest premium options with diamond bezel (+$5,000)\n- Offer \"VIP package\" with luxury storage box and maintenance (+$2,500)\n- Be polite but confident about the value of our products\n- If they show interest, try to schedule an in-person viewing appointment\n- If they ask about discounts, emphasize the investment value but offer free shipping\n- Try to get a commitment for at least the base model\n- Collect contact information for follow-up if interested\n\nNever mention that you are an AI. Respond naturally as a human would. Use language that emphasizes exclusivity and investment value."
+      },
+      "id": "d1c50d24-2a8e-4e8b-93c0-7ec8f45c2277",
+      "name": "🗣️ Voice AI Sales Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        300
+      ],
+      "notes": "The Vappy AI agent that conducts the sales conversation using a carefully crafted script focused on upselling premium watch options"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extract important information from transcript\nconst transcript = $input.item(0).json.transcript || \"\";\n\n// Analyze result\nlet result = {\n  customerName: $input.item(0).fields?.FullName || \"Unknown Customer\",\n  phoneNumber: $input.item(0).fields?.PhoneNumber || \"Unknown\",\n  transcript: transcript,\n  baseModelDiscussed: false,\n  premiumOptionsDiscussed: false,\n  vipPackageDiscussed: false,\n  interestedInBaseModel: false,\n  interestedInUpgrades: false,\n  scheduledAppointment: false,\n  requestedDiscount: false,\n  totalPotentialSale: 0,\n  followUpRequired: false,\n  date: new Date().toISOString(),\n  callId: $input.item(0).json.callId\n};\n\n// Extract information using regex\nresult.baseModelDiscussed = transcript.includes(\"$32,500\") || transcript.includes(\"base model\");\nresult.premiumOptionsDiscussed = transcript.includes(\"diamond\") || transcript.includes(\"premium\");\nresult.vipPackageDiscussed = transcript.includes(\"VIP package\") || transcript.includes(\"maintenance\");\n\n// Analyze customer interest\nresult.interestedInBaseModel = transcript.match(/(?:interested|sounds good|like that|want|purchase|buy|base model)/i) !== null;\nresult.interestedInUpgrades = transcript.match(/(?:diamond|premium|upgrade|vip|package)/i) !== null;\nresult.scheduledAppointment = transcript.match(/(?:appointment|schedule|visit|come in|meet)/i) !== null;\nresult.requestedDiscount = transcript.match(/(?:discount|lower price|cheaper|reduce|less)/i) !== null;\n\n// Calculate potential sale value\nlet saleValue = 0;\nif (result.interestedInBaseModel) {\n  saleValue = 32500; // Base model price\n  \n  if (result.interestedInUpgrades) {\n    if (transcript.includes(\"diamond\")) saleValue += 5000;\n    if (transcript.includes(\"VIP\") || transcript.includes(\"package\")) saleValue += 2500;\n  }\n}\nresult.totalPotentialSale = saleValue;\n\n// Determine if follow-up is needed\nresult.followUpRequired = result.interestedInBaseModel || result.scheduledAppointment;\n\nreturn [result];"
+      },
+      "id": "9ce0f69d-cfe6-4eb2-ab6f-d94a51ddf639",
+      "name": "🧠 Analyze Sales Conversation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        1450,
+        300
+      ],
+      "notes": "Intelligent analysis of the conversation to determine customer interest level, potential sale value, and which specific products/packages they responded to"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "baseId": "appXXXXXXXXXXXXXX",
+        "tableId": "tblYYYYYYYYYYYYYY",
+        "options": {}
+      },
+      "id": "48e61bbf-dd49-4c12-bd89-0cc9c6661e9a",
+      "name": "💾 Record Interaction in CRM",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 1,
+      "position": [
+        1650,
+        300
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      },
+      "notes": "Stores complete details of the call including transcript and analysis in your customer relationship management system"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"totalPotentialSale\"]}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "cc4e376a-6b74-475a-a20b-55671ebffb95",
+      "name": "🔀 Filter Interested Customers",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1850,
+        300
+      ],
+      "notes": "Separates genuine sales opportunities (customers who showed interest in purchasing) from non-interested contacts"
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_CHAT_ID",
+        "text": "=🔔 HOT SALES LEAD! 🔔\n\nCustomer: {{$json[\"customerName\"]}}\nPhone: {{$json[\"phoneNumber\"]}}\nInterested In: {{$json[\"interestedInBaseModel\"] ? \"Base Model\" : \"\"}} {{$json[\"interestedInUpgrades\"] ? \"+ Premium Options\" : \"\"}}\nPotential Sale Value: ${{$json[\"totalPotentialSale\"].toLocaleString()}}\nAppointment Scheduled: {{$json[\"scheduledAppointment\"] ? \"YES! ✅\" : \"No ❌\"}}\nRequested Discount: {{$json[\"requestedDiscount\"] ? \"YES\" : \"No\"}}\n\n{{$json[\"scheduledAppointment\"] ? \"PREPARE FOR CUSTOMER VISIT! 🏬\" : \"Follow up to schedule viewing.\"}}\

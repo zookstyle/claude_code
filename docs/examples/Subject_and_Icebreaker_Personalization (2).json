@@ -1,0 +1,374 @@
+{
+  "name": "Subject and Icebreaker Personalization",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json['Company URL'] }}",
+        "options": {}
+      },
+      "id": "98039051-4762-4d06-9ebb-16b0783e30d3",
+      "name": "Scape Company Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1600,
+        -2120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const htmlContent = $node[\"Scape Company Page\"].json[\"data\"]; // Replace this with the field containing your HTML content\n\n// Function to strip HTML tags and clean the text\nconst extractPlainText = (html) => {\n    if (!html) return \"\";\n\n    // Remove script and style tags along with their content\n    const withoutScriptsAndStyles = html.replace(/<script[\\s\\S]*?>[\\s\\S]*?<\\/script>/gi, \"\")\n                                        .replace(/<style[\\s\\S]*?>[\\s\\S]*?<\\/style>/gi, \"\");\n\n    // Remove all remaining HTML tags\n    const strippedText = withoutScriptsAndStyles.replace(/<\\/?[^>]+(>|$)/g, \"\");\n\n    // Replace HTML entities with their plain-text equivalents\n    const decodedText = strippedText.replace(/&nbsp;/gi, \" \")\n                                    .replace(/&amp;/gi, \"&\")\n                                    .replace(/&lt;/gi, \"<\")\n                                    .replace(/&gt;/gi, \">\")\n                                    .replace(/&quot;/gi, \"\\\"\")\n                                    .replace(/&#39;/gi, \"'\");\n\n    // Replace multiple spaces, tabs, and newlines with a single space\n    const cleanedText = decodedText.replace(/\\s+/g, \" \").trim();\n\n    return cleanedText;\n};\n\n// Call the function to process the HTML content\nconst plainText = extractPlainText(htmlContent);\n\n// Return the plain text as the output of this node\nreturn {\n    plainText: plainText,\n};\n\n"
+      },
+      "id": "8f67088f-f829-4834-9468-15dff27503e3",
+      "name": "Structure Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1380,
+        -2120
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1DqtCCiTpSXLD9n6v0nMnGIHIqhvpleNKY6pfJQhzRlI",
+          "mode": "list",
+          "cachedResultName": "Subject and Intro n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DqtCCiTpSXLD9n6v0nMnGIHIqhvpleNKY6pfJQhzRlI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 822600526,
+          "mode": "list",
+          "cachedResultName": "Sample Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DqtCCiTpSXLD9n6v0nMnGIHIqhvpleNKY6pfJQhzRlI/edit#gid=822600526"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1820,
+        -2120
+      ],
+      "id": "53cd0dd0-39c6-4a27-bd68-7839cfe8faec",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "nDqTlRyTivmq6Lm1",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1DqtCCiTpSXLD9n6v0nMnGIHIqhvpleNKY6pfJQhzRlI",
+          "mode": "list",
+          "cachedResultName": "Subject and Intro n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DqtCCiTpSXLD9n6v0nMnGIHIqhvpleNKY6pfJQhzRlI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 822600526,
+          "mode": "list",
+          "cachedResultName": "Sample Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DqtCCiTpSXLD9n6v0nMnGIHIqhvpleNKY6pfJQhzRlI/edit#gid=822600526"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Google Sheets Trigger').item.json.Name }}",
+            "Subject": "={{ $json.message.content.subjectLine }}",
+            "Icebreaker": "={{ $json.message.content.icebreaker }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "First",
+              "displayName": "First",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last",
+              "displayName": "Last",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Headline",
+              "displayName": "Headline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "State",
+              "displayName": "State",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Icebreaker",
+              "displayName": "Icebreaker",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -800,
+        -2120
+      ],
+      "id": "6a2ee626-c9f7-4c72-89a1-6ef3326175c5",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6cost8bh8vvPcw8J",
+          "name": "malenAI Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You're a helpful, intelligent writing assistant.",
+              "role": "system"
+            },
+            {
+              "content": "=Your task is to personalize an email.\n\nYou'll do this by taking, as input, a Company URL Scrape, and then editing templates for the subject line, and icebreaker.\n\nYour templates are below.\n\nSubject Line:\n\"Hey {FirstName}, think I have something for you re: {thingAboutThem}\"\n\nIcebreaker:\n\"Is AI something you’ve thought about integrating into {thing}? With your experience, it might make sense to explore how it could challenge your current strategies. \n\n\nGuidelines:\n1. Your tone of voice should be \"casual bar conversation\" and very spartan. No fancy language. \n2. Look for plausible (but vague) connections wherever possible.\n3. Do not just repeat data from the Company profile verbatim. Paraphrase, so they think a human wrote it.\n4. Make sure the subject line is non-capitalized, even if it's grammatically incorrect.\n5. Capitalize the persons name.\n6. Respond in JSON using this format:\n\n\n{\"subjectLine\":\"\",\"icebreaker\":\"\"}"
+            },
+            {
+              "content": "={{ $json.plainText }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        -1140,
+        -2120
+      ],
+      "id": "a006d1b0-2735-4393-adf4-7c58e1822842",
+      "name": "Subject and Icebreaker",
+      "credentials": {
+        "openAiApi": {
+          "id": "utCndENqU3o62u6e",
+          "name": "n8n malenAI "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Personalize Subject and Icebreaker for Cold Outreach\n- Trigger on row added to sheet\n- Scrape Company URL page\n- Remove HTML from scrape",
+        "height": 340,
+        "width": 620,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1860,
+        -2300
+      ],
+      "id": "7e28811e-fc32-4ccd-bd84-87aeff5acb35",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Create Subject and Icebreaker\n",
+        "height": 240,
+        "width": 600,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1180,
+        -2200
+      ],
+      "id": "d42bc3d3-5032-4fc4-9c57-02a5ef89d3b9",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Scape Company Page": {
+      "main": [
+        [
+          {
+            "node": "Structure Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Structure Data": {
+      "main": [
+        [
+          {
+            "node": "Subject and Icebreaker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Scape Company Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subject and Icebreaker": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2b410ab2-21b0-43ef-945b-bb0abf15608f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "98b3713886201ff4b893bf76344eb318d1967daca7fbec4f1c4ea46dbd7cefb0"
+  },
+  "id": "0neKMVBQFfBIpiFi",
+  "tags": []
+}

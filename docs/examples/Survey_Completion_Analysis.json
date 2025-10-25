@@ -1,0 +1,531 @@
+{
+  "name": "Survey Completion Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c",
+          "mode": "list",
+          "cachedResultName": "Principals Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1902881366,
+          "mode": "list",
+          "cachedResultName": "Form Response",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c/edit#gid=1902881366"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        20,
+        -100
+      ],
+      "id": "2b401172-53f4-4c5e-99e9-c2156517528c",
+      "name": "Response Received",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "nDqTlRyTivmq6Lm1",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Analyze Google Responses\n\nIn this case a Pre-Filled form is emailed to a user. Once completed we execute the workflow and mark completed for the user.\n\nExample Pre-Filled Form Link\n=hyperlink(\"https://docs.google.com/forms/d/e/{ID}/viewform?usp=pp_url&entry.2039453090=\"&A2&\"&entry.651695783=\"&B2&\"\")\n\nThis references the cells A2 and B2 in a google sheet, to pre-fill a response.\n\n\n\n",
+        "height": 460,
+        "width": 560,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -360
+      ],
+      "id": "4eeed6fb-67ff-407c-9c0b-4819bd5fde95",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c",
+          "mode": "list",
+          "cachedResultName": "Principals Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 999802471,
+          "mode": "list",
+          "cachedResultName": "Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c/edit#gid=999802471"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Completed": "Yes",
+            "ID": "={{ $('Get Data').item.json.ID }}"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Survey 1",
+              "displayName": "Survey 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Completed",
+              "displayName": "Completed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Survey 2",
+              "displayName": "Survey 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Completed 2",
+              "displayName": "Completed 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1280,
+        -100
+      ],
+      "id": "10df91e8-264d-4a0c-90dc-b747e3da5910",
+      "name": "Mark Completed",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VmfjJXW3QIzH7nsR",
+          "name": "malenAI Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a helpful, intelligent assistant.",
+              "role": "system"
+            },
+            {
+              "content": "=Your task is to generate an analysis from input data of a survey response. This proposal should be highly specific, and high-quality.\n\nContext: We are an education managment organization that is looking to implement a student incentive system.\n\nThe proposal template we're using has many fields. You must return these fields in one JSON object. \n\nUse this format:\n\n{\n  \"Likes\": \"\",\n  \"Dislikes\": \"\",\n  \"Suggestion\":\"\",\n  \"Attitude\": \"\",\n  \"Questions\":\"\",\n  \"Summary\": \"\"\n}\n\n\nRules:\n1. Use a spartan, casual tone of voice.\n2. Be to-the-point but professional—assume you're writing to a sophisticated audience.\n3. Ensure that all fields are filled out. Do not miss a field or leave any variables empty.\n4. Attitude should only be Positive, Negative, or Neutral\n5. Do not create any assumptions. If any information does not exist, say unavailable."
+            },
+            {
+              "content": "={\n  \"Response\":\"I really like the idea of raffles. I think having a big prize that everyone can get excited about will motivate students to earn points or tickets. We have used a system here at Excel Charter for a long time and have called it Excel bucks. Can we still use or name instead of calling it points? I think teachers really like Class Dojo. If it works and looks like Class Dojo I think you will have more success with them. Initially I think it will be hard to get them to switch.\"\n}"
+            },
+            {
+              "content": "={\n  \"Likes\": \"Raffles and the idea of a big prize to motivate students. Appreciation for the Class Dojo system and its familiarity.\",\n  \"Dislikes\": \"Concern about switching from a familiar system like Class Dojo. Implicit hesitation about changing terminology from 'Excel bucks' to 'points.'\",\n  \"Suggestion\": \"Allow the continued use of the term 'Excel bucks' instead of 'points' to maintain consistency and familiarity.\",\n  \"Attitude\": \"Positive\",\n  \"Questions\": \"Can we still use our name (Excel bucks) instead of calling it points?\",\n  \"Summary\": \"The user supports the idea of using raffles as motivation and values familiar systems like Class Dojo and Excel bucks. They suggest allowing schools to keep their existing terminology to ease the transition.\"\n}\n",
+              "role": "assistant"
+            },
+            {
+              "content": "={\n  \"Response\":\"{{ $('Response Received').item.json['Please describe your thoughts on the video.'] }}\"\n}\n  "
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        480,
+        -100
+      ],
+      "id": "b8dc8d03-4dbc-487a-a9bd-c81c9057cd58",
+      "name": "Analyze Response",
+      "credentials": {
+        "openAiApi": {
+          "id": "utCndENqU3o62u6e",
+          "name": "n8n malenAI "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c",
+          "mode": "list",
+          "cachedResultName": "Principals Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 999802471,
+          "mode": "list",
+          "cachedResultName": "Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c/edit#gid=999802471"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ID",
+              "lookupValue": "={{ $('Response Received').item.json.ID }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        940,
+        -100
+      ],
+      "id": "14bd0280-f957-4670-b168-564a6e4c8135",
+      "name": "Get Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VmfjJXW3QIzH7nsR",
+          "name": "malenAI Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c",
+          "mode": "list",
+          "cachedResultName": "Principals Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1198497022,
+          "mode": "list",
+          "cachedResultName": "Response Analysis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hLXWOwfrZL7-HUzdfbTlNbp-RX09gggb2Axyt0DFi_c/edit#gid=1198497022"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Email": "={{ $json.Email }}",
+            "Title": "={{ $json.Title }}",
+            "Likes": "={{ $('Analyze Response').item.json.message.content.Likes }}",
+            "Dislikes": "={{ $('Analyze Response').item.json.message.content.Dislikes }}",
+            "Suggestion": "={{ $('Analyze Response').item.json.message.content.Suggestion }}",
+            "Attitude": "={{ $('Analyze Response').item.json.message.content.Attitude }}",
+            "Questions": "={{ $('Analyze Response').item.json.message.content.Questions }}",
+            "Summary": "={{ $('Analyze Response').item.json.message.content.Summary }}",
+            "ID": "={{ $('Response Received').item.json.ID }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Likes",
+              "displayName": "Likes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Dislikes",
+              "displayName": "Dislikes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Suggestion",
+              "displayName": "Suggestion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Attitude",
+              "displayName": "Attitude",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Questions",
+              "displayName": "Questions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1120,
+        -100
+      ],
+      "id": "618827ed-77f0-4bfd-b220-beb9e0f72388",
+      "name": "Post Analysis",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VmfjJXW3QIzH7nsR",
+          "name": "malenAI Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## ChatGPT Response Analysis\n\n{\n  \"Likes\": \"\",\n  \"Dislikes\": \"\",\n  \"Suggestion\":\"\",\n  \"Attitude\": \"\",\n  \"Questions\":\"\",\n  \"Summary\": \"\"\n}\n",
+        "height": 460,
+        "width": 460,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -360
+      ],
+      "id": "04d07d37-9e4a-482e-a77e-194a31d0c234",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Post Analysis to Database \n",
+        "height": 280,
+        "width": 520,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        900,
+        -180
+      ],
+      "id": "666e8856-03cd-43e2-8a1b-e23862c32e18",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Response Received": {
+      "main": [
+        [
+          {
+            "node": "Analyze Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Completed": {
+      "main": [
+        []
+      ]
+    },
+    "Analyze Response": {
+      "main": [
+        [
+          {
+            "node": "Get Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data": {
+      "main": [
+        [
+          {
+            "node": "Post Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Analysis": {
+      "main": [
+        [
+          {
+            "node": "Mark Completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8fe8e670-69fa-4186-8d9e-2c336b37a96c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "98b3713886201ff4b893bf76344eb318d1967daca7fbec4f1c4ea46dbd7cefb0"
+  },
+  "id": "iM1V7UXIXJTBRH9s",
+  "tags": []
+}

@@ -1,0 +1,732 @@
+{
+  "name": "Reddit Scrape and Research",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -100
+      ],
+      "id": "58639624-c14c-4047-a9c8-fc72b583b7eb",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "subreddit": "smallbusiness",
+        "keyword": "automation",
+        "limit": 1,
+        "additionalFields": {
+          "sort": "hot"
+        }
+      },
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [
+        20,
+        -100
+      ],
+      "id": "404abb64-d8cb-456c-9467-ab2255729007",
+      "name": "Reddit",
+      "credentials": {
+        "redditOAuth2Api": {
+          "id": "cpL1RwiaNscaez6j",
+          "name": "Reddit account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7f9385d5-8d04-40db-a635-f21889d6bcf8",
+              "leftValue": "={{ $json.ups }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "9925b7be-ad78-45ac-a954-70f530bf1599",
+              "leftValue": "={{ $json.selftext }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "1e358c1f-247c-4109-a37d-13a5eb2771c9",
+              "leftValue": "={{ DateTime.fromSeconds($json.created).toISO() }}",
+              "rightValue": "={{ $today.minus({days:90}).toISO() }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "after"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        200,
+        -100
+      ],
+      "id": "871a885f-b863-460d-8a40-4f51993d8bd1",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "## 1 Reddit Research\n- trigger on click\n- search a subreddit based on keyword\n- filter based on activity, and post date (current 90 days)",
+        "height": 340,
+        "width": 640,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        -260
+      ],
+      "id": "ed1d030e-602c-4a75-a94e-10c5d8446ec3",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eae2b3b3-68dd-4b74-b684-953eeae02917",
+              "name": "Post Date",
+              "value": "={{ DateTime.fromSeconds($json.created).toLocaleString() }} ",
+              "type": "string"
+            },
+            {
+              "id": "1413a27c-552e-4803-a9aa-666f0fd2a464",
+              "name": "URL",
+              "value": "={{ $('Reddit').item.json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "c5775dcb-e02d-4d56-9766-1c0030ed9787",
+              "name": "subreddit",
+              "value": "={{ $json.subreddit }}",
+              "type": "string"
+            },
+            {
+              "id": "5e95cc42-f35a-46bf-aeb2-eef1dd61cb7d",
+              "name": "Upvotes",
+              "value": "={{ $('Reddit').item.json.ups }}",
+              "type": "number"
+            },
+            {
+              "id": "9aaf6ae0-3ddf-4d43-8b82-f8b366b2b88e",
+              "name": "Content",
+              "value": "={{ $json.selftext }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -220,
+        260
+      ],
+      "id": "e6d8f272-c4d9-47cc-99c5-547e327ee45a",
+      "name": "Clean Data"
+    },
+    {
+      "parameters": {
+        "content": "## 2 Cleaning\n- only pull in relevant data\n- this allows for better processing efficiency for AI and optimized workflow.",
+        "height": 280,
+        "width": 360,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        120
+      ],
+      "id": "c52ba0c5-b7c2-43aa-b544-73792fea96ab",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        560,
+        420
+      ],
+      "id": "e81e9ac8-ddf6-4b6b-bf7d-d9fb8bc9657e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3f146eea-46e5-4320-b280-e8f291404127",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        0
+      ],
+      "id": "83bd7378-aaed-4870-85b2-edc3b0843d17",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "content": "## 3 Agent determines relevant information\n- filter for relevant posts\n- join relevant post identifier with respective post",
+        "height": 460,
+        "width": 640,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        120
+      ],
+      "id": "fd27f8db-4e15-4d4e-893c-93863a643e2a",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        140
+      ],
+      "id": "36a66ce4-218c-4d7c-bd59-a1955c886852",
+      "name": "Summarization Chain"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1700,
+        20
+      ],
+      "id": "f80075b5-0ca2-4330-9880-6e818cdeadbf",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1iq2HxGxXbLenCBbRKnbBKiBkXA7Rgf1lMaX_lzltR1c",
+          "mode": "list",
+          "cachedResultName": "n8n Reddit Solution Scraper",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iq2HxGxXbLenCBbRKnbBKiBkXA7Rgf1lMaX_lzltR1c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iq2HxGxXbLenCBbRKnbBKiBkXA7Rgf1lMaX_lzltR1c/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Post Date": "={{ $json['Post Date'] }}",
+            "Upvotes": "={{ $json.Upvotes }}",
+            "Summary": "={{ $json.response.text }}",
+            "Original Content": "={{ $json.Content }}",
+            "Solutions": "={{ $json.output }}",
+            "URL": "={{ $json.URL }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Post Date",
+              "displayName": "Post Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Upvotes",
+              "displayName": "Upvotes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Original Content",
+              "displayName": "Original Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Solutions",
+              "displayName": "Solutions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1900,
+        20
+      ],
+      "id": "61520588-0875-419e-86cb-31f9561daa35",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VmfjJXW3QIzH7nsR",
+          "name": "malenAI Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Use case and adaptations\n- analyze posts for potential builds for systems\n- adapt to specific niche to find problems in that category\n- analyze all solutions to come up with most common solution to provide for businesses\n",
+        "width": 580,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        -440
+      ],
+      "id": "49a89a6a-5ae4-42a2-91a9-07766b213e72",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based on the following Reddit post, suggest a business idea or service that I could create to help solve this problem for this business and others with similar needs.\n\nReddit Post: {{ $json.Content }}\n\nProvide a concise description of a business idea or service that would address this issue effectively for multiple businesses facing similar challengs.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        340
+      ],
+      "id": "757b7da2-a027-4b74-9fcc-11166ded4bea",
+      "name": "Solutions Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Decide whether this Reddit post is describing a business-related problem or if the post is in need of a solution to this problem. The post should specifically mention a challenge or requirement that the business is trying to address.\n\nReddit post: {{ $json.Content }}\n\nAnswer the question, is this post about a business problem or in need of a solution? Only answer Yes or No.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        240
+      ],
+      "id": "7ba27e06-e4c9-43f2-b6b6-18c75f2955ae",
+      "name": "Relevance Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        840,
+        780
+      ],
+      "id": "3afbe9b9-252f-425c-b6d6-9fc78041753e",
+      "name": "GPT 4o mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "utCndENqU3o62u6e",
+          "name": "n8n malenAI "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 4 Merge Data\n- Filter for only relevant posts that have a problem to solve\n- Summarize post content\n- Determine solution based on post content\n- Merge data and post to google sheet",
+        "height": 760,
+        "width": 1240,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        860,
+        -180
+      ],
+      "id": "d7ebeec2-7256-467b-8dbf-1ffa358e5d78",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Powered by GPT 4o mini\n- double click node to adjust LLM selection\n- can use specific LLM for each agent task",
+        "height": 140,
+        "width": 460,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        520,
+        760
+      ],
+      "id": "c30b4186-44cf-4c21-ae8d-6b0d682a76de",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {
+    "Clean Data": [
+      {
+        "json": {
+          "Post Date": "2/14/2025 ",
+          "URL": "https://www.reddit.com/r/smallbusiness/comments/1ip8tdh/exploring_ai_automation_options_for_handling_calls/",
+          "subreddit": "smallbusiness",
+          "Upvotes": 2,
+          "Content": "Running a business solo is a grind, and one of the biggest challenges I have faced is handling calls while staying productive. I’d be in the middle of deep work, and suddenly, baam the phone rings.\n\nI have tried using a VA (virtual assistant), but the costs are just adding up, and they aren’t always available. Hiring full-time! Way too expensive.\n\nLately, I have been thinking of getting AI-powered solutions that act as virtual receptionists—handling inquiries, scheduling appointments, and even answering customer questions that will not be too expensive. \nI came across this AI receptionist software called My AI Front Desk. It looks pretty cool – handles calls, booking appointments, even does customer support 24/7. I'm thinking about giving it a shot, but I'm curious if anyone else has used AI for this kind of stuff? What's your experience been like?\n\nHow do you handle incoming calls? Have you tried automation or AI assistants? Curious to hear what’s worked for you!"
+        }
+      },
+      {
+        "json": {
+          "Post Date": "2/13/2025 ",
+          "URL": "https://www.reddit.com/r/smallbusiness/comments/1iowwr4/im_obsessed_with_personal_finance_and_budgeting/",
+          "subreddit": "smallbusiness",
+          "Upvotes": 2,
+          "Content": "I’m a student in San Jose, and I built a custom spreadsheet to manage my finances. It’s helped me stay on top of my spending, forecast expenses, and save money.\n\nI used it recently to help my girlfriend with her finances, planning for school, car payments, and more, and it worked well for her too.\n\nNow I’m wondering if this could be a business idea. Maybe starting with personalized templates or a service to help people budget and later developing software to automate it all.\n\nWould you use something like this? What features would make it valuable for you?\n\nThanks for your input!"
+        }
+      },
+      {
+        "json": {
+          "Post Date": "2/12/2025 ",
+          "URL": "https://www.reddit.com/r/smallbusiness/comments/1io578q/how_do_you_manage_social_media_for_your_business/",
+          "subreddit": "smallbusiness",
+          "Upvotes": 20,
+          "Content": "Managing our business’s social media has always been such a headache. I’ve tried everything—Fiverr, Upwork, agencies…but it was either way too expensive or took up too much of my time. I recently decided to take matters into my own hands and spent the last 6 months building a smart social media tool to help my business automate post scheduling and put my social media on full autopilot.  \n\nThe first tests have been super promising, and I’m really excited about the results so far. Would you consider using a tool like this for your business? I’d love to hear your thoughts or feedback! "
+        }
+      },
+      {
+        "json": {
+          "Post Date": "2/6/2025 ",
+          "URL": "https://www.reddit.com/r/smallbusiness/comments/1ijchg9/need_help_in_automating_my_business/",
+          "subreddit": "smallbusiness",
+          "Upvotes": 3,
+          "Content": "Hey everyone,\n\nI’m looking to automate my service export business based out of India. It’s a traditional one, but I see huge potential for growth if things are streamlined properly. The problem? I have no idea where to start with automation.\n\nI’d love to connect with someone who can guide me through the entire process—helping set up workflows, systems, and anything else needed to make it run smoothly. Since I truly believe in the business’s future, I’m more than happy to offer a share of recurring profits in exchange for your help.\n\nIf this sounds like something you’d be interested in, let’s chat! Appreciate any advice or leads as well. \n\nNow please do your magic Reddit. "
+        }
+      },
+      {
+        "json": {
+          "Post Date": "2/10/2025 ",
+          "URL": "https://www.reddit.com/r/smallbusiness/comments/1imgllj/how_do_you_gather_and_showcase_customer/",
+          "subreddit": "smallbusiness",
+          "Upvotes": 2,
+          "Content": "Getting customer testimonials can make a huge difference for businesses, but it’s not always easy. It can feel like a hassle to chase clients and manage the process.\n\nI’m curious, how do you approach this? Have you faced challenges getting testimonials, and how do you use them once you have them? Would an automated system to simplify the process be something you’d use?\n\nI would love to hear your thoughts and experiences!"
+        }
+      }
+    ],
+    "Filter": [
+      {
+        "json": {
+          "output": "Yes.",
+          "Post Date": "2/14/2025 ",
+          "URL": "https://www.reddit.com/r/smallbusiness/comments/1ip8tdh/exploring_ai_automation_options_for_handling_calls/",
+          "subreddit": "smallbusiness",
+          "Upvotes": 2,
+          "Content": "Running a business solo is a grind, and one of the biggest challenges I have faced is handling calls while staying productive. I’d be in the middle of deep work, and suddenly, baam the phone rings.\n\nI have tried using a VA (virtual assistant), but the costs are just adding up, and they aren’t always available. Hiring full-time! Way too expensive.\n\nLately, I have been thinking of getting AI-powered solutions that act as virtual receptionists—handling inquiries, scheduling appointments, and even answering customer questions that will not be too expensive. \nI came across this AI receptionist software called My AI Front Desk. It looks pretty cool – handles calls, booking appointments, even does customer support 24/7. I'm thinking about giving it a shot, but I'm curious if anyone else has used AI for this kind of stuff? What's your experience been like?\n\nHow do you handle incoming calls? Have you tried automation or AI assistants? Curious to hear what’s worked for you!"
+        }
+      },
+      {
+        "json": {
+          "output": "Yes.",
+          "Post Date": "2/13/2025 ",
+          "URL": "https://www.reddit.com/r/smallbusiness/comments/1iowwr4/im_obsessed_with_personal_finance_and_budgeting/",
+          "subreddit": "smallbusiness",
+          "Upvotes": 2,
+          "Content": "I’m a student in San Jose, and I built a custom spreadsheet to manage my finances. It’s helped me stay on top of my spending, forecast expenses, and save money.\n\nI used it recently to help my girlfriend with her finances, planning for school, car payments, and more, and it worked well for her too.\n\nNow I’m wondering if this could be a business idea. Maybe starting with personalized templates or a service to help people budget and later developing software to automate it all.\n\nWould you use something like this? What features would make it valuable for you?\n\nThanks for your input!"
+        }
+      },
+      {
+        "json": {
+          "output": "Yes.",
+          "Post Date": "2/12/2025 ",
+          "URL": "https://www.reddit.com/r/smallbusiness/comments/1io578q/how_do_you_manage_social_media_for_your_business/",
+          "subreddit": "smallbusiness",
+          "Upvotes": 20,
+          "Content": "Managing our business’s social media has always been such a headache. I’ve tried everything—Fiverr, Upwork, agencies…but it was either way too expensive or took up too much of my time. I recently decided to take matters into my own hands and spent the last 6 months building a smart social media tool to help my business automate post scheduling and put my social media on full autopilot.  \n\nThe first tests have been super promising, and I’m really excited about the results so far. Would you consider using a tool like this for your business? I’d love to hear your thoughts or feedback! "
+        }
+      },
+      {
+        "json": {
+          "output": "Yes",
+          "Post Date": "2/6/2025 ",
+          "URL": "https://www.reddit.com/r/smallbusiness/comments/1ijchg9/need_help_in_automating_my_business/",
+          "subreddit": "smallbusiness",
+          "Upvotes": 3,
+          "Content": "Hey everyone,\n\nI’m looking to automate my service export business based out of India. It’s a traditional one, but I see huge potential for growth if things are streamlined properly. The problem? I have no idea where to start with automation.\n\nI’d love to connect with someone who can guide me through the entire process—helping set up workflows, systems, and anything else needed to make it run smoothly. Since I truly believe in the business’s future, I’m more than happy to offer a share of recurring profits in exchange for your help.\n\nIf this sounds like something you’d be interested in, let’s chat! Appreciate any advice or leads as well. \n\nNow please do your magic Reddit. "
+        }
+      },
+      {
+        "json": {
+          "output": "Yes.",
+          "Post Date": "2/10/2025 ",
+          "URL": "https://www.reddit.com/r/smallbusiness/comments/1imgllj/how_do_you_gather_and_showcase_customer/",
+          "subreddit": "smallbusiness",
+          "Upvotes": 2,
+          "Content": "Getting customer testimonials can make a huge difference for businesses, but it’s not always easy. It can feel like a hassle to chase clients and manage the process.\n\nI’m curious, how do you approach this? Have you faced challenges getting testimonials, and how do you use them once you have them? Would an automated system to simplify the process be something you’d use?\n\nI would love to hear your thoughts and experiences!"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Reddit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reddit": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Clean Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Data": {
+      "main": [
+        [
+          {
+            "node": "Relevance Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Solutions Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solutions Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Relevance Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT 4o mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Relevance Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Summarization Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Solutions Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f7ef3426-31a1-4f08-a66f-3a7e035c736c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "98b3713886201ff4b893bf76344eb318d1967daca7fbec4f1c4ea46dbd7cefb0"
+  },
+  "id": "0aDnGmwpqyU3O4sT",
+  "tags": []
+}
